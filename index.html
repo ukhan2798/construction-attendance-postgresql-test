@@ -1487,7 +1487,7 @@
 // PostgreSQL test API. Use Account > API Settings only if the Cloudflare tunnel URL changes.
 const DEFAULT_API_URL = "https://tap-manhattan-transportation-alleged.trycloudflare.com";
 
-let API_URL = window.__PG_FORCED_API__ || "https://tap-manhattan-transportation-alleged.trycloudflare.com";
+let API_URL = "https://tap-manhattan-transportation-alleged.trycloudflare.com";
 let PG_V39_TOKEN = sessionStorage.getItem("attendance_pg_token") || "";
 
 const STATUS_INFO = {
@@ -1795,22 +1795,34 @@ function setDailySyncStatus(mode, textValue){
 
 async function loadSupervisors(){
   const select = document.getElementById("loginSupervisor");
-  const supCacheKey = `attendance_cache_${CACHE_VERSION}_supervisors_global`;
-  const cached = getFastCache(supCacheKey, 24 * 60 * 60 * 1000);
-
-  if(cached && Array.isArray(cached.value)){
-    supervisors = cached.value.filter(s => s && s.supervisorId);
-    select.innerHTML = `<option value="">Select Supervisor</option>` +
-      supervisors.map(s =>
-        `<option value="${escapeHtml(s.supervisorId)}">${escapeHtml(s.supervisorName || s.supervisorId)} (${escapeHtml(s.supervisorId)})</option>`
-      ).join("");
-    populateTransferSupervisors();
-  }
+  select.innerHTML = `<option value="">Loading PostgreSQL users...</option>`;
 
   try{
-    const data = await apiPost({action:"getSupervisors"});
-    supervisors = (data.supervisors || []).filter(s => s && s.supervisorId);
-    setFastCache(supCacheKey, supervisors);
+    const controller = new AbortController();
+    const timer = setTimeout(()=>controller.abort(), 8000);
+
+    const res = await fetch(API_URL.replace(/\/$/,"") + "/api/users", {
+      method:"GET",
+      cache:"no-store",
+      headers:{"Accept":"application/json"},
+      signal:controller.signal
+    });
+
+    clearTimeout(timer);
+
+    let data={};
+    try{ data=await res.json(); }catch{}
+
+    if(!res.ok){
+      throw new Error(data.detail || `API returned HTTP ${res.status}`);
+    }
+
+    supervisors = (data.users || []).map(u => ({
+      supervisorId:u.supervisor_id,
+      supervisorName:u.supervisor_name,
+      project:u.project || "",
+      status:u.status || "Active"
+    })).filter(s => s.supervisorId);
 
     select.innerHTML = `<option value="">Select Supervisor</option>` +
       supervisors.map(s =>
@@ -1818,11 +1830,14 @@ async function loadSupervisors(){
       ).join("");
 
     populateTransferSupervisors();
+    showNotice("loginNotice","PostgreSQL users loaded.","ok");
+
   }catch(err){
-    if(!cached){
-      select.innerHTML = `<option value="">Unable to load supervisors</option>`;
-      showNotice("loginNotice", err.message, "err");
-    }
+    select.innerHTML = `<option value="">Unable to load users</option>`;
+    const msg = err?.name==="AbortError"
+      ? "PostgreSQL API timed out. Check the Cloudflare tunnel and API server."
+      : err.message;
+    showNotice("loginNotice",msg,"err");
   }
 }
 
@@ -1839,34 +1854,52 @@ async function login(){
   btn.textContent = "Signing in...";
 
   try{
-    const data = await apiPost({
-      action:"login",
-      supervisorId,
-      pin
+    const controller = new AbortController();
+    const timer = setTimeout(()=>controller.abort(), 10000);
+
+    const res = await fetch(API_URL.replace(/\/$/,"") + "/api/login", {
+      method:"POST",
+      cache:"no-store",
+      headers:{
+        "Content-Type":"application/json",
+        "Accept":"application/json"
+      },
+      body:JSON.stringify({
+        user_id:supervisorId,
+        pin
+      }),
+      signal:controller.signal
     });
 
-    currentSupervisor =
-      data.supervisor ||
-      data.user ||
-      (
-        data.supervisorId
-          ? {
-              supervisorId:data.supervisorId,
-              supervisorName:data.supervisorName || data.name || data.supervisorId,
-              project:data.project || ""
-            }
-          : null
-      );
+    clearTimeout(timer);
 
-    if(!currentSupervisor || !currentSupervisor.supervisorId){
-      throw new Error("Login succeeded but supervisor details were not returned. Please deploy the latest Apps Script.");
+    let data={};
+    try{ data=await res.json(); }catch{}
+
+    if(!res.ok){
+      throw new Error(data.detail || `Login failed (${res.status})`);
     }
+
+    PG_V39_TOKEN = data.token || "";
+    if(PG_V39_TOKEN){
+      sessionStorage.setItem("attendance_pg_token",PG_V39_TOKEN);
+    }
+
+    currentSupervisor = {
+      supervisorId:data.user?.user_id || supervisorId,
+      supervisorName:data.user?.name || supervisorId,
+      project:data.user?.project || "",
+      role:data.user?.role || (
+        supervisorId==="ADMIN" ? "admin" :
+        supervisorId.startsWith("CM") ? "cm" : "supervisor"
+      )
+    };
 
     sessionStorage.setItem("attendance_supervisor",JSON.stringify(currentSupervisor));
 
     if(isAdminUser()){
       adminPin = pin;
-      sessionStorage.setItem("attendance_admin_pin", adminPin);
+      sessionStorage.setItem("attendance_admin_pin",pin);
       showAdminApp();
       await adminLoadDashboard();
     }else if(isCMUser()){
@@ -1876,82 +1909,16 @@ async function login(){
       showMainApp();
       await loadCrewAndToday();
     }
+
   }catch(err){
-    showNotice("loginNotice",err.message,"err");
+    const msg = err?.name==="AbortError"
+      ? "PostgreSQL API timed out during login."
+      : err.message;
+    showNotice("loginNotice",msg,"err");
   }finally{
     btn.disabled = false;
     btn.textContent = "Login";
   }
-}
-
-
-function isAdminUser(){
-  return !!(
-    currentSupervisor &&
-    String(currentSupervisor.supervisorId || "").trim().toUpperCase() === "ADMIN"
-  );
-}
-
-function isCMUser(){
-  return !!(
-    currentSupervisor &&
-    /^CM/i.test(String(currentSupervisor.supervisorId || "").trim())
-  );
-}
-
-function showAdminApp(){
-  document.getElementById("loginView").classList.add("hidden");
-  document.getElementById("mainApp").classList.add("hidden");
-  document.getElementById("cmApp").classList.add("hidden");
-  document.getElementById("adminApp").classList.remove("hidden");
-  document.getElementById("appHeader").classList.remove("hidden");
-  document.getElementById("bottomNav").classList.add("hidden");
-  const brand = document.querySelector(".brand-title");
-  if(brand) brand.textContent = "DMT Sea Palace - Admin Control";
-  document.getElementById("headerSupervisor").textContent = "System Administrator • ADMIN";
-}
-
-function showCMApp(){
-  if(!currentSupervisor || !currentSupervisor.supervisorId){
-    throw new Error("CM session is missing. Please log in again.");
-  }
-
-  document.getElementById("loginView").classList.add("hidden");
-  document.getElementById("mainApp").classList.add("hidden");
-  document.getElementById("cmApp").classList.remove("hidden");
-  document.getElementById("appHeader").classList.remove("hidden");
-  document.getElementById("bottomNav").classList.add("hidden");
-
-  const brand = document.querySelector(".brand-title");
-  if(brand) brand.textContent = "DMT Sea Palace - CM Approval";
-
-  document.getElementById("headerSupervisor").textContent =
-    `${currentSupervisor.supervisorName || currentSupervisor.supervisorId} • ${currentSupervisor.supervisorId}`;
-
-  document.getElementById("cmAccountText").textContent =
-    `${currentSupervisor.supervisorName || currentSupervisor.supervisorId} (${currentSupervisor.supervisorId}) • ${currentSupervisor.project || "DMT Sea Palace"}`;
-}
-
-function showMainApp(){
-  const brand = document.querySelector(".brand-title");
-  if(brand) brand.textContent = "DMT Sea Palace - Site Attendance";
-  if(!currentSupervisor || !currentSupervisor.supervisorId){
-    throw new Error("Supervisor session is missing. Please log in again.");
-  }
-
-  document.getElementById("loginView").classList.add("hidden");
-  document.getElementById("mainApp").classList.remove("hidden");
-  document.getElementById("appHeader").classList.remove("hidden");
-  document.getElementById("bottomNav").classList.remove("hidden");
-
-  document.getElementById("headerSupervisor").textContent =
-    `${currentSupervisor.supervisorName || currentSupervisor.supervisorId} • ${currentSupervisor.supervisorId}`;
-
-  document.getElementById("accountSupervisor").textContent =
-    `${currentSupervisor.supervisorName || ""} (${currentSupervisor.supervisorId})`;
-
-  document.getElementById("accountProject").textContent =
-    currentSupervisor.project || "—";
 }
 
 function logout(){
@@ -3744,7 +3711,7 @@ function printCurrentStaff(){
     
 <div style="position:fixed;right:8px;bottom:8px;z-index:99999;
 background:#0b57d0;color:#fff;padding:5px 9px;border-radius:999px;
-font:700 9px Arial;box-shadow:0 3px 10px rgba(0,0,0,.15)">v39 • PostgreSQL NEW TUNNEL</div>
+font:700 9px Arial;box-shadow:0 3px 10px rgba(0,0,0,.15)">v39 • PostgreSQL DIRECT LOGIN</div>
 </body>
     </html>
   `);
