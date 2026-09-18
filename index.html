@@ -781,6 +781,18 @@
 
 </head>
 <body>
+
+<script>
+(function(){
+  const PG_API = "https://taxi-shots-amend-johnny.trycloudflare.com";
+  try {
+    localStorage.removeItem("attendance_pg_api_url");
+    localStorage.setItem("attendance_pg_api_url", PG_API);
+  } catch(e) {}
+  window.__PG_FORCED_API__ = PG_API;
+})();
+</script>
+
 <div class="app">
 
   <header class="topbar hidden" id="appHeader">
@@ -1440,7 +1452,7 @@
       Paste the Apps Script <b>Web app URL</b> ending with <b>/exec</b>. Do not use the Library URL.
     </p>
     <div class="field">
-      <label>Web App URL</label>
+      <label>PostgreSQL API URL</label>
       <input id="apiUrlInput" type="url" placeholder="https://script.google.com/macros/s/.../exec" />
     </div>
     <button class="btn btn-primary full" onclick="saveApiSettings()">Save API URL</button>
@@ -1475,7 +1487,7 @@
 // PostgreSQL test API. Use Account > API Settings only if the Cloudflare tunnel URL changes.
 const DEFAULT_API_URL = "https://taxi-shots-amend-johnny.trycloudflare.com";
 
-let API_URL = localStorage.getItem("attendance_pg_api_url") || DEFAULT_API_URL;
+let API_URL = window.__PG_FORCED_API__ || "https://taxi-shots-amend-johnny.trycloudflare.com";
 let PG_V39_TOKEN = sessionStorage.getItem("attendance_pg_token") || "";
 
 const STATUS_INFO = {
@@ -3732,7 +3744,7 @@ function printCurrentStaff(){
     
 <div style="position:fixed;right:8px;bottom:8px;z-index:99999;
 background:#0b57d0;color:#fff;padding:5px 9px;border-radius:999px;
-font:700 9px Arial;box-shadow:0 3px 10px rgba(0,0,0,.15)">v39 • PostgreSQL TEST FIXED</div>
+font:700 9px Arial;box-shadow:0 3px 10px rgba(0,0,0,.15)">v39 • PostgreSQL FORCE API</div>
 </body>
     </html>
   `);
@@ -4813,7 +4825,7 @@ function saveApiSettings(){
 
   url = url.replace(/\/$/,"");
   API_URL = url;
-  localStorage.setItem("attendance_api_url",url);
+  localStorage.setItem("attendance_pg_api_url",url);
   closeApiSettings();
   alert("API URL saved. Reloading app...");
   location.reload();
