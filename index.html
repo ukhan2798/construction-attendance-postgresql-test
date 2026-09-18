@@ -1,12 +1,211 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Construction Attendance PostgreSQL Test</title>
+  <style>
+    body {
+      margin:0;
+      font-family:Arial,Helvetica,sans-serif;
+      background:#f4f7fb;
+      color:#172033;
+    }
+    .wrap {
+      max-width:1100px;
+      margin:0 auto;
+      padding:24px;
+    }
+    .hero {
+      background:linear-gradient(135deg,#0b57d0,#1688ff);
+      color:white;
+      padding:22px;
+      border-radius:16px;
+      margin-bottom:18px;
+    }
+    .hero h1 { margin:0 0 6px; font-size:24px; }
+    .hero p { margin:0; opacity:.9; }
+    .status {
+      margin-top:12px;
+      display:inline-block;
+      padding:7px 11px;
+      border-radius:999px;
+      background:rgba(255,255,255,.15);
+      font-size:13px;
+      font-weight:700;
+    }
+    .grid {
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:12px;
+      margin-bottom:18px;
+    }
+    .card {
+      background:white;
+      border:1px solid #dfe7f2;
+      border-radius:14px;
+      padding:16px;
+      box-shadow:0 6px 18px rgba(0,0,0,.04);
+    }
+    .num {
+      font-size:26px;
+      font-weight:800;
+      color:#0b57d0;
+    }
+    .label {
+      color:#6b7280;
+      margin-top:4px;
+      font-size:12px;
+    }
+    select,button {
+      min-height:42px;
+      border-radius:9px;
+      border:1px solid #cfd9e7;
+      padding:0 12px;
+      font-size:14px;
+    }
+    button {
+      background:#0b57d0;
+      color:white;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .row {
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-bottom:12px;
+    }
+    table {
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+    }
+    th,td {
+      text-align:left;
+      padding:10px;
+      border-bottom:1px solid #e8edf5;
+    }
+    th { background:#f7f9fc; }
+    .muted { color:#7b8798; }
+    @media(max-width:700px) {
+      .grid { grid-template-columns:1fr 1fr; }
+      .wrap { padding:12px; }
+      table { font-size:11px; }
+      th,td { padding:8px 6px; }
+    }
+  </style>
 </head>
-<body style="font-family:Arial;padding:40px">
-  <h1>Construction Attendance PostgreSQL Test</h1>
-  <p>GitHub test project is working.</p>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <h1>Construction Attendance PostgreSQL Test</h1>
+    <p>GitHub Pages → Cloudflare Tunnel → FastAPI → PostgreSQL</p>
+    <div class="status" id="apiStatus">Checking API...</div>
+  </div>
+
+  <div class="grid">
+    <div class="card"><div class="num" id="workersCount">-</div><div class="label">Workers</div></div>
+    <div class="card"><div class="num" id="activeWorkers">-</div><div class="label">Active Workers</div></div>
+    <div class="card"><div class="num" id="attendanceRows">-</div><div class="label">Attendance Rows</div></div>
+    <div class="card"><div class="num" id="companyMaster">-</div><div class="label">Company Master</div></div>
+    <div class="card"><div class="num" id="pendingApprovals">-</div><div class="label">Pending Approvals</div></div>
+    <div class="card"><div class="num" id="pendingCorrections">-</div><div class="label">Pending Corrections</div></div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Supervisor Workers Test</h2>
+    <div class="row">
+      <select id="supervisorSelect">
+        <option value="">Loading supervisors...</option>
+      </select>
+      <button onclick="loadWorkers()">Load Workers</button>
+    </div>
+    <div id="workerInfo" class="muted">Select a supervisor to load PostgreSQL workers.</div>
+    <div style="overflow:auto;margin-top:12px">
+      <table>
+        <thead>
+          <tr>
+            <th>Worker ID</th>
+            <th>Name</th>
+            <th>Designation</th>
+            <th>Location</th>
+            <th>Status</th>
+            <th>OT</th>
+          </tr>
+        </thead>
+        <tbody id="workersBody">
+          <tr><td colspan="6" class="muted">No data loaded yet.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE = "https://asia-bumper-istanbul-close.trycloudflare.com";
+
+async function api(path) {
+  const r = await fetch(API_BASE + path, {cache:"no-store"});
+  if(!r.ok) throw new Error("API error " + r.status);
+  return r.json();
+}
+
+async function init() {
+  try {
+    const health = await api("/health");
+    document.getElementById("apiStatus").textContent =
+      health.success ? "● PostgreSQL Connected" : "Connection problem";
+
+    const s = await api("/api/stats");
+    const x = s.stats || {};
+    document.getElementById("workersCount").textContent = x.workers ?? "-";
+    document.getElementById("activeWorkers").textContent = x.active_workers ?? "-";
+    document.getElementById("attendanceRows").textContent = x.attendance_rows ?? "-";
+    document.getElementById("companyMaster").textContent = x.company_master ?? "-";
+    document.getElementById("pendingApprovals").textContent = x.pending_approvals ?? "-";
+    document.getElementById("pendingCorrections").textContent = x.pending_corrections ?? "-";
+
+    const sup = await api("/api/supervisors");
+    const select = document.getElementById("supervisorSelect");
+    select.innerHTML = '<option value="">Select Supervisor</option>' +
+      (sup.supervisors || []).map(s =>
+        `<option value="${s.supervisor_id}">${s.supervisor_name} (${s.supervisor_id})</option>`
+      ).join("");
+  } catch(e) {
+    document.getElementById("apiStatus").textContent = "● API Connection Failed";
+    document.getElementById("workerInfo").textContent = e.message;
+  }
+}
+
+async function loadWorkers() {
+  const sid = document.getElementById("supervisorSelect").value;
+  if(!sid) return;
+  const body = document.getElementById("workersBody");
+  const info = document.getElementById("workerInfo");
+  body.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
+  try {
+    const d = await api("/api/workers?supervisor_id=" + encodeURIComponent(sid));
+    const rows = d.workers || [];
+    info.textContent = rows.length + " active workers loaded from PostgreSQL.";
+    body.innerHTML = rows.length ? rows.map(w => `
+      <tr>
+        <td>${w.worker_id || ""}</td>
+        <td>${w.worker_name || ""}</td>
+        <td>${w.designation || ""}</td>
+        <td>${w.location || ""}</td>
+        <td>${w.status || ""}</td>
+        <td>${w.ot_eligible || ""}</td>
+      </tr>`).join("") :
+      '<tr><td colspan="6">No workers found.</td></tr>';
+  } catch(e) {
+    info.textContent = e.message;
+    body.innerHTML = '<tr><td colspan="6">Failed to load workers.</td></tr>';
+  }
+}
+
+init();
+</script>
 </body>
 </html>
