@@ -784,7 +784,7 @@
 
 <script>
 (function(){
-  const PG_API = "https://tap-manhattan-transportation-alleged.trycloudflare.com";
+  const PG_API = "https://dc-hamadto-pc.tail062d9a.ts.net";
   try {
     localStorage.removeItem("attendance_pg_api_url");
     localStorage.setItem("attendance_pg_api_url", PG_API);
@@ -1485,9 +1485,9 @@
 ========================================================= */
 
 // PostgreSQL test API. Use Account > API Settings only if the Cloudflare tunnel URL changes.
-const DEFAULT_API_URL = "https://tap-manhattan-transportation-alleged.trycloudflare.com";
+const DEFAULT_API_URL = "https://dc-hamadto-pc.tail062d9a.ts.net";
 
-let API_URL = "https://tap-manhattan-transportation-alleged.trycloudflare.com";
+let API_URL = localStorage.getItem("attendance_pg_api_url") || "https://dc-hamadto-pc.tail062d9a.ts.net";
 let PG_V39_TOKEN = sessionStorage.getItem("attendance_pg_token") || "";
 
 const STATUS_INFO = {
@@ -3711,7 +3711,7 @@ function printCurrentStaff(){
     
 <div style="position:fixed;right:8px;bottom:8px;z-index:99999;
 background:#0b57d0;color:#fff;padding:5px 9px;border-radius:999px;
-font:700 9px Arial;box-shadow:0 3px 10px rgba(0,0,0,.15)">v39 • PostgreSQL DIRECT LOGIN</div>
+font:700 9px Arial;box-shadow:0 3px 10px rgba(0,0,0,.15)">v39 • PostgreSQL STABLE API</div>
 </body>
     </html>
   `);
