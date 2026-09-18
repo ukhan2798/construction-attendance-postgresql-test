@@ -1,211 +1,360 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Construction Attendance PostgreSQL Test</title>
-  <style>
-    body {
-      margin:0;
-      font-family:Arial,Helvetica,sans-serif;
-      background:#f4f7fb;
-      color:#172033;
-    }
-    .wrap {
-      max-width:1100px;
-      margin:0 auto;
-      padding:24px;
-    }
-    .hero {
-      background:linear-gradient(135deg,#0b57d0,#1688ff);
-      color:white;
-      padding:22px;
-      border-radius:16px;
-      margin-bottom:18px;
-    }
-    .hero h1 { margin:0 0 6px; font-size:24px; }
-    .hero p { margin:0; opacity:.9; }
-    .status {
-      margin-top:12px;
-      display:inline-block;
-      padding:7px 11px;
-      border-radius:999px;
-      background:rgba(255,255,255,.15);
-      font-size:13px;
-      font-weight:700;
-    }
-    .grid {
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:12px;
-      margin-bottom:18px;
-    }
-    .card {
-      background:white;
-      border:1px solid #dfe7f2;
-      border-radius:14px;
-      padding:16px;
-      box-shadow:0 6px 18px rgba(0,0,0,.04);
-    }
-    .num {
-      font-size:26px;
-      font-weight:800;
-      color:#0b57d0;
-    }
-    .label {
-      color:#6b7280;
-      margin-top:4px;
-      font-size:12px;
-    }
-    select,button {
-      min-height:42px;
-      border-radius:9px;
-      border:1px solid #cfd9e7;
-      padding:0 12px;
-      font-size:14px;
-    }
-    button {
-      background:#0b57d0;
-      color:white;
-      font-weight:700;
-      cursor:pointer;
-    }
-    .row {
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-      margin-bottom:12px;
-    }
-    table {
-      width:100%;
-      border-collapse:collapse;
-      font-size:13px;
-    }
-    th,td {
-      text-align:left;
-      padding:10px;
-      border-bottom:1px solid #e8edf5;
-    }
-    th { background:#f7f9fc; }
-    .muted { color:#7b8798; }
-    @media(max-width:700px) {
-      .grid { grid-template-columns:1fr 1fr; }
-      .wrap { padding:12px; }
-      table { font-size:11px; }
-      th,td { padding:8px 6px; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DMT Sea Palace - PostgreSQL Attendance Test</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f3f7fc;color:#14213d}
+.hidden{display:none!important}
+.top{background:#1559c7;color:#fff;padding:14px 18px;font-weight:800;box-shadow:0 4px 16px rgba(0,0,0,.12)}
+.wrap{max-width:1200px;margin:18px auto;padding:0 14px}
+.card{background:#fff;border:1px solid #dbe5f1;border-radius:14px;padding:16px;box-shadow:0 8px 24px rgba(20,55,95,.07);margin-bottom:14px}
+h1,h2,h3{margin:0 0 10px}
+.muted{color:#6b7a90;font-size:12px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.stat{background:#f7faff;border:1px solid #dde7f5;border-radius:12px;padding:12px}
+.stat b{font-size:22px;color:#1559c7;display:block}
+input,select,textarea,button{font:inherit}
+input,select,textarea{width:100%;padding:10px;border:1px solid #ccd8e8;border-radius:9px;background:#fff}
+button{border:0;border-radius:9px;padding:10px 14px;font-weight:800;cursor:pointer}
+.btn{background:#1559c7;color:#fff}
+.soft{background:#edf4ff;color:#1559c7}
+.good{background:#16a34a;color:#fff}
+.bad{background:#dc2626;color:#fff}
+.warn{background:#f59e0b;color:#fff}
+.login{max-width:440px;margin:7vh auto}
+.notice{padding:10px;border-radius:9px;background:#fff7ed;color:#9a3412;margin-top:10px}
+.ok{background:#ecfdf3;color:#166534}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{padding:9px 7px;border-bottom:1px solid #e8edf4;text-align:left;vertical-align:middle}
+th{background:#f4f8fd;position:sticky;top:0}
+.scroll{overflow:auto;max-height:55vh;border:1px solid #e1e8f2;border-radius:10px}
+.statusBtns{display:flex;gap:4px;flex-wrap:wrap}
+.statusBtns button{padding:6px 9px;font-size:11px;background:#eef3f9;color:#42526a}
+.statusBtns button.active{background:#1559c7;color:#fff}
+.ot{width:74px}
+.comment{min-width:160px}
+.tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.tabs button{background:#edf4ff;color:#1559c7}
+.tabs button.active{background:#1559c7;color:#fff}
+@media(max-width:800px){
+ .grid{grid-template-columns:repeat(2,1fr)}
+ .wrap{padding:0 8px}
+ table{font-size:11px}
+ th,td{padding:7px 5px}
+ .comment{min-width:130px}
+}
+</style>
 </head>
 <body>
-<div class="wrap">
-  <div class="hero">
-    <h1>Construction Attendance PostgreSQL Test</h1>
-    <p>GitHub Pages → Cloudflare Tunnel → FastAPI → PostgreSQL</p>
-    <div class="status" id="apiStatus">Checking API...</div>
-  </div>
+<div class="top">DMT Sea Palace - PostgreSQL Attendance Test</div>
 
-  <div class="grid">
-    <div class="card"><div class="num" id="workersCount">-</div><div class="label">Workers</div></div>
-    <div class="card"><div class="num" id="activeWorkers">-</div><div class="label">Active Workers</div></div>
-    <div class="card"><div class="num" id="attendanceRows">-</div><div class="label">Attendance Rows</div></div>
-    <div class="card"><div class="num" id="companyMaster">-</div><div class="label">Company Master</div></div>
-    <div class="card"><div class="num" id="pendingApprovals">-</div><div class="label">Pending Approvals</div></div>
-    <div class="card"><div class="num" id="pendingCorrections">-</div><div class="label">Pending Corrections</div></div>
-  </div>
-
+<div id="loginView" class="wrap login">
   <div class="card">
-    <h2 style="margin-top:0">Supervisor Workers Test</h2>
-    <div class="row">
-      <select id="supervisorSelect">
-        <option value="">Loading supervisors...</option>
-      </select>
-      <button onclick="loadWorkers()">Load Workers</button>
+    <h2>User Login</h2>
+    <div class="muted">PostgreSQL test system — separate from live Google Sheets app</div>
+    <div style="margin-top:14px">
+      <label>User</label>
+      <select id="loginUser"><option>Loading users...</option></select>
     </div>
-    <div id="workerInfo" class="muted">Select a supervisor to load PostgreSQL workers.</div>
-    <div style="overflow:auto;margin-top:12px">
-      <table>
-        <thead>
-          <tr>
-            <th>Worker ID</th>
-            <th>Name</th>
-            <th>Designation</th>
-            <th>Location</th>
-            <th>Status</th>
-            <th>OT</th>
-          </tr>
-        </thead>
-        <tbody id="workersBody">
-          <tr><td colspan="6" class="muted">No data loaded yet.</td></tr>
-        </tbody>
-      </table>
+    <div style="margin-top:10px">
+      <label>PIN</label>
+      <input id="loginPin" type="password" placeholder="Enter PIN">
+    </div>
+    <button class="btn" style="width:100%;margin-top:12px" onclick="login()">Login</button>
+    <div id="loginMsg"></div>
+  </div>
+</div>
+
+<div id="appView" class="wrap hidden">
+  <div class="card row" style="justify-content:space-between">
+    <div>
+      <h2 id="welcome">Attendance</h2>
+      <div id="who" class="muted"></div>
+    </div>
+    <button class="bad" onclick="logout()">Logout</button>
+  </div>
+
+  <div id="supervisorPanel" class="hidden">
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <div>
+          <h3>Daily Attendance</h3>
+          <div class="muted">All workers in one page</div>
+        </div>
+        <div class="row">
+          <input id="attDate" type="date" style="width:170px">
+          <button class="soft" onclick="loadSupervisorDay()">Load</button>
+        </div>
+      </div>
+      <div id="dayApproval" class="notice hidden"></div>
+    </div>
+
+    <div class="card">
+      <div class="scroll">
+        <table>
+          <thead><tr><th>#</th><th>ID</th><th>Name</th><th>Designation</th><th>Status</th><th>OT</th><th>Comment</th><th>Correction</th></tr></thead>
+          <tbody id="workerBody"></tbody>
+        </table>
+      </div>
+      <button id="submitAttendanceBtn" class="good" style="width:100%;margin-top:12px" onclick="submitAttendance()">Submit Attendance to CM</button>
+    </div>
+  </div>
+
+  <div id="cmPanel" class="hidden">
+    <div class="tabs">
+      <button class="active" onclick="showCMTab('approvals',this)">Daily Approvals</button>
+      <button onclick="showCMTab('corrections',this)">Individual Corrections</button>
+    </div>
+    <div id="cmApprovals" class="card"></div>
+    <div id="cmCorrections" class="card hidden"></div>
+  </div>
+
+  <div id="adminPanel" class="hidden">
+    <div class="grid" id="adminStats"></div>
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <h3>Workers</h3>
+        <button class="soft" onclick="loadAdminWorkers()">Refresh</button>
+      </div>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>ID</th><th>Name</th><th>Designation</th><th>Supervisor</th><th>Location</th><th>Status</th><th>OT</th></tr></thead>
+          <tbody id="adminWorkerBody"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-const API_BASE = "https://asia-bumper-istanbul-close.trycloudflare.com";
+const API="https://taxi-shots-amend-johnny.trycloudflare.com";
+let token="";
+let currentUser=null;
+let currentWorkers=[];
 
-async function api(path) {
-  const r = await fetch(API_BASE + path, {cache:"no-store"});
-  if(!r.ok) throw new Error("API error " + r.status);
-  return r.json();
+async function req(path,opts={}){
+  const headers={"Content-Type":"application/json",...(opts.headers||{})};
+  if(token) headers.Authorization="Bearer "+token;
+  const r=await fetch(API+path,{...opts,headers,cache:"no-store"});
+  let d={};
+  try{d=await r.json()}catch(e){}
+  if(!r.ok) throw new Error(d.detail||("HTTP "+r.status));
+  return d;
 }
 
-async function init() {
-  try {
-    const health = await api("/health");
-    document.getElementById("apiStatus").textContent =
-      health.success ? "● PostgreSQL Connected" : "Connection problem";
-
-    const s = await api("/api/stats");
-    const x = s.stats || {};
-    document.getElementById("workersCount").textContent = x.workers ?? "-";
-    document.getElementById("activeWorkers").textContent = x.active_workers ?? "-";
-    document.getElementById("attendanceRows").textContent = x.attendance_rows ?? "-";
-    document.getElementById("companyMaster").textContent = x.company_master ?? "-";
-    document.getElementById("pendingApprovals").textContent = x.pending_approvals ?? "-";
-    document.getElementById("pendingCorrections").textContent = x.pending_corrections ?? "-";
-
-    const sup = await api("/api/supervisors");
-    const select = document.getElementById("supervisorSelect");
-    select.innerHTML = '<option value="">Select Supervisor</option>' +
-      (sup.supervisors || []).map(s =>
-        `<option value="${s.supervisor_id}">${s.supervisor_name} (${s.supervisor_id})</option>`
-      ).join("");
-  } catch(e) {
-    document.getElementById("apiStatus").textContent = "● API Connection Failed";
-    document.getElementById("workerInfo").textContent = e.message;
+async function loadUsers(){
+  try{
+    const d=await req("/api/users");
+    loginUser.innerHTML='<option value="">Select User</option>'+d.users.map(u=>`<option value="${u.supervisor_id}">${u.supervisor_name} (${u.supervisor_id})</option>`).join("");
+  }catch(e){
+    loginUser.innerHTML='<option value="">Unable to load users</option>';
+    loginMsg.innerHTML=`<div class="notice">${e.message}</div>`;
   }
 }
 
-async function loadWorkers() {
-  const sid = document.getElementById("supervisorSelect").value;
-  if(!sid) return;
-  const body = document.getElementById("workersBody");
-  const info = document.getElementById("workerInfo");
-  body.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
-  try {
-    const d = await api("/api/workers?supervisor_id=" + encodeURIComponent(sid));
-    const rows = d.workers || [];
-    info.textContent = rows.length + " active workers loaded from PostgreSQL.";
-    body.innerHTML = rows.length ? rows.map(w => `
-      <tr>
-        <td>${w.worker_id || ""}</td>
-        <td>${w.worker_name || ""}</td>
-        <td>${w.designation || ""}</td>
-        <td>${w.location || ""}</td>
-        <td>${w.status || ""}</td>
-        <td>${w.ot_eligible || ""}</td>
-      </tr>`).join("") :
-      '<tr><td colspan="6">No workers found.</td></tr>';
-  } catch(e) {
-    info.textContent = e.message;
-    body.innerHTML = '<tr><td colspan="6">Failed to load workers.</td></tr>';
+async function login(){
+  try{
+    const d=await req("/api/login",{method:"POST",body:JSON.stringify({user_id:loginUser.value,pin:loginPin.value})});
+    token=d.token; currentUser=d.user;
+    sessionStorage.setItem("pg_token",token);
+    sessionStorage.setItem("pg_user",JSON.stringify(currentUser));
+    openRole();
+  }catch(e){
+    loginMsg.innerHTML=`<div class="notice">${e.message}</div>`;
   }
 }
 
-init();
+function logout(){
+  sessionStorage.clear();
+  location.reload();
+}
+
+function openRole(){
+  loginView.classList.add("hidden");
+  appView.classList.remove("hidden");
+  welcome.textContent="Welcome, "+currentUser.name;
+  who.textContent=currentUser.user_id+" • "+currentUser.role.toUpperCase();
+
+  supervisorPanel.classList.add("hidden");
+  cmPanel.classList.add("hidden");
+  adminPanel.classList.add("hidden");
+
+  if(currentUser.role==="supervisor"){
+    supervisorPanel.classList.remove("hidden");
+    attDate.value=new Date().toISOString().slice(0,10);
+    loadSupervisorDay();
+  }else if(currentUser.role==="cm"){
+    cmPanel.classList.remove("hidden");
+    loadCMApprovals();
+    loadCMCorrections();
+  }else{
+    adminPanel.classList.remove("hidden");
+    loadAdmin();
+  }
+}
+
+async function loadSupervisorDay(){
+  const dt=attDate.value;
+  if(!dt)return;
+  try{
+    const d=await req("/api/supervisor/workers?attendance_date="+encodeURIComponent(dt));
+    currentWorkers=d.workers||[];
+    renderWorkers();
+    if(d.approval){
+      dayApproval.classList.remove("hidden");
+      dayApproval.textContent="CM Status: "+d.approval.cm_status+(d.approval.cm_remark?" • "+d.approval.cm_remark:"");
+      submitAttendanceBtn.disabled=["pending","approved"].includes(String(d.approval.cm_status||"").toLowerCase());
+    }else{
+      dayApproval.classList.add("hidden");
+      submitAttendanceBtn.disabled=false;
+    }
+  }catch(e){ alert(e.message); }
+}
+
+function renderWorkers(){
+  workerBody.innerHTML=currentWorkers.map((w,i)=>{
+    const locked=!!w.submitted;
+    return `<tr>
+      <td>${i+1}</td>
+      <td><b>${w.worker_id}</b></td>
+      <td>${w.worker_name}</td>
+      <td>${w.designation||""}</td>
+      <td>
+        <select onchange="currentWorkers[${i}].work_status=this.value" ${locked?"disabled":""}>
+          ${["P","OFF","A","AL","SL","PH","BD","EL"].map(s=>`<option ${w.work_status===s?"selected":""}>${s}</option>`).join("")}
+        </select>
+      </td>
+      <td><input class="ot" type="number" min="0" max="8" step="0.5" value="${w.ot_hours||0}" onchange="currentWorkers[${i}].ot_hours=Number(this.value)" ${locked?"disabled":""}></td>
+      <td><input class="comment" value="${(w.supervisor_comment||"").replaceAll('"','&quot;')}" onchange="currentWorkers[${i}].supervisor_comment=this.value" ${locked?"disabled":""}></td>
+      <td>${locked?`<button class="warn" onclick="makeCorrection(${i})">Correction</button>`:"—"}</td>
+    </tr>`;
+  }).join("");
+}
+
+async function submitAttendance(){
+  if(!confirm("Submit this full day to CM?"))return;
+  try{
+    const d=await req("/api/supervisor/attendance/submit",{method:"POST",body:JSON.stringify({
+      attendance_date:attDate.value,
+      supervisor_id:currentUser.user_id,
+      items:currentWorkers.map(w=>({
+        worker_id:w.worker_id,
+        work_status:w.work_status,
+        ot_hours:Number(w.ot_hours||0),
+        supervisor_comment:w.supervisor_comment||""
+      }))
+    })});
+    alert(d.message||"Submitted");
+    loadSupervisorDay();
+  }catch(e){alert(e.message)}
+}
+
+async function makeCorrection(i){
+  const w=currentWorkers[i];
+  const status=prompt("Requested status (P/OFF/A/AL/SL/PH/BD/EL):",w.work_status);
+  if(!status)return;
+  const ot=prompt("Requested OT:",String(w.ot_hours||0));
+  if(ot===null)return;
+  const reason=prompt("Reason for correction:","");
+  if(reason===null)return;
+  try{
+    const d=await req("/api/supervisor/corrections",{method:"POST",body:JSON.stringify({
+      attendance_date:attDate.value,
+      worker_id:w.worker_id,
+      requested_status:status,
+      requested_ot:Number(ot||0),
+      reason
+    })});
+    alert("Correction request sent: "+d.request_id);
+  }catch(e){alert(e.message)}
+}
+
+function showCMTab(name,btn){
+  document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  cmApprovals.classList.toggle("hidden",name!=="approvals");
+  cmCorrections.classList.toggle("hidden",name!=="corrections");
+}
+
+async function loadCMApprovals(){
+  try{
+    const d=await req("/api/cm/approvals?status=pending");
+    cmApprovals.innerHTML="<h3>Pending Daily Approvals</h3>"+(d.approvals.length?d.approvals.map(a=>`
+      <div class="card">
+        <b>${a.approval_date} • ${a.supervisor_name} (${a.supervisor_id})</b>
+        <div class="muted">${a.worker_count} workers • Normal ${a.normal_hours} • OT ${a.ot_hours}</div>
+        <div class="row" style="margin-top:9px">
+          <button class="good" onclick="cmDecision('${a.approval_id}','approve')">Approve</button>
+          <button class="bad" onclick="cmDecision('${a.approval_id}','reject')">Reject</button>
+        </div>
+      </div>`).join(""):"<div class='muted'>No pending approvals.</div>");
+  }catch(e){cmApprovals.innerHTML="<div class='notice'>"+e.message+"</div>"}
+}
+
+async function cmDecision(id,decision){
+  const remark=prompt("CM remark (optional):","")||"";
+  try{
+    await req("/api/cm/approval/decision",{method:"POST",body:JSON.stringify({approval_id:id,decision,remark})});
+    loadCMApprovals();
+  }catch(e){alert(e.message)}
+}
+
+async function loadCMCorrections(){
+  try{
+    const d=await req("/api/cm/corrections?status=pending");
+    cmCorrections.innerHTML="<h3>Pending Individual Corrections</h3>"+(d.corrections.length?d.corrections.map(c=>`
+      <div class="card">
+        <b>${c.request_date} • ${c.worker_id} • ${c.worker_name}</b>
+        <div class="muted">${c.current_status} / OT ${c.current_ot} → ${c.requested_status} / OT ${c.requested_ot}</div>
+        <div style="margin-top:5px">Reason: ${c.reason||"—"}</div>
+        <div class="row" style="margin-top:9px">
+          <button class="good" onclick="cmCorrDecision('${c.request_id}','approve')">Approve</button>
+          <button class="bad" onclick="cmCorrDecision('${c.request_id}','reject')">Reject</button>
+        </div>
+      </div>`).join(""):"<div class='muted'>No pending corrections.</div>");
+  }catch(e){cmCorrections.innerHTML="<div class='notice'>"+e.message+"</div>"}
+}
+
+async function cmCorrDecision(id,decision){
+  const remark=prompt("CM remark (optional):","")||"";
+  try{
+    await req("/api/cm/corrections/decision",{method:"POST",body:JSON.stringify({request_id:id,decision,remark})});
+    loadCMCorrections();
+  }catch(e){alert(e.message)}
+}
+
+async function loadAdmin(){
+  try{
+    const d=await req("/api/admin/stats");
+    const s=d.stats;
+    adminStats.innerHTML=[
+      ["Workers",s.workers],["Active",s.active_workers],["Company Master",s.company_master],["Attendance",s.attendance_rows],
+      ["Pending Approvals",s.pending_approvals],["Pending Corrections",s.pending_corrections]
+    ].map(x=>`<div class="stat"><b>${x[1]}</b><span>${x[0]}</span></div>`).join("");
+    loadAdminWorkers();
+  }catch(e){alert(e.message)}
+}
+
+async function loadAdminWorkers(){
+  try{
+    const d=await req("/api/admin/workers?status=all");
+    adminWorkerBody.innerHTML=d.workers.map(w=>`<tr>
+      <td>${w.worker_id}</td><td>${w.worker_name}</td><td>${w.designation||""}</td>
+      <td>${w.supervisor_id||""}</td><td>${w.location||""}</td><td>${w.status||""}</td><td>${w.ot_eligible||""}</td>
+    </tr>`).join("");
+  }catch(e){adminWorkerBody.innerHTML=`<tr><td colspan="7">${e.message}</td></tr>`}
+}
+
+(async function(){
+  await loadUsers();
+  token=sessionStorage.getItem("pg_token")||"";
+  try{currentUser=JSON.parse(sessionStorage.getItem("pg_user")||"null")}catch(e){}
+  if(token&&currentUser) openRole();
+})();
 </script>
 </body>
 </html>
