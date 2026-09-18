@@ -2,359 +2,236 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DMT Sea Palace - PostgreSQL Attendance Test</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>DMT Sea Palace Attendance</title>
 <style>
+:root{
+  --navy:#0b2f55;--navy2:#0a2747;--blue:#1473f3;--blue2:#2a98ff;--bg:#f4f8fd;
+  --line:#dbe5f2;--text:#17233b;--muted:#6b7a90;--green:#13a45b;--red:#e72939;
+  --amber:#ff9f1c;--purple:#7c3aed;--card:#fff;
+}
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f3f7fc;color:#14213d}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Arial,Helvetica,sans-serif}
+body{min-height:100vh}
 .hidden{display:none!important}
-.top{background:#1559c7;color:#fff;padding:14px 18px;font-weight:800;box-shadow:0 4px 16px rgba(0,0,0,.12)}
-.wrap{max-width:1200px;margin:18px auto;padding:0 14px}
-.card{background:#fff;border:1px solid #dbe5f1;border-radius:14px;padding:16px;box-shadow:0 8px 24px rgba(20,55,95,.07);margin-bottom:14px}
-h1,h2,h3{margin:0 0 10px}
-.muted{color:#6b7a90;font-size:12px}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.stat{background:#f7faff;border:1px solid #dde7f5;border-radius:12px;padding:12px}
-.stat b{font-size:22px;color:#1559c7;display:block}
-input,select,textarea,button{font:inherit}
-input,select,textarea{width:100%;padding:10px;border:1px solid #ccd8e8;border-radius:9px;background:#fff}
-button{border:0;border-radius:9px;padding:10px 14px;font-weight:800;cursor:pointer}
-.btn{background:#1559c7;color:#fff}
-.soft{background:#edf4ff;color:#1559c7}
-.good{background:#16a34a;color:#fff}
-.bad{background:#dc2626;color:#fff}
-.warn{background:#f59e0b;color:#fff}
-.login{max-width:440px;margin:7vh auto}
-.notice{padding:10px;border-radius:9px;background:#fff7ed;color:#9a3412;margin-top:10px}
-.ok{background:#ecfdf3;color:#166534}
-table{width:100%;border-collapse:collapse;font-size:12px}
-th,td{padding:9px 7px;border-bottom:1px solid #e8edf4;text-align:left;vertical-align:middle}
-th{background:#f4f8fd;position:sticky;top:0}
-.scroll{overflow:auto;max-height:55vh;border:1px solid #e1e8f2;border-radius:10px}
-.statusBtns{display:flex;gap:4px;flex-wrap:wrap}
-.statusBtns button{padding:6px 9px;font-size:11px;background:#eef3f9;color:#42526a}
-.statusBtns button.active{background:#1559c7;color:#fff}
-.ot{width:74px}
-.comment{min-width:160px}
-.tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
-.tabs button{background:#edf4ff;color:#1559c7}
-.tabs button.active{background:#1559c7;color:#fff}
-@media(max-width:800px){
- .grid{grid-template-columns:repeat(2,1fr)}
- .wrap{padding:0 8px}
- table{font-size:11px}
- th,td{padding:7px 5px}
- .comment{min-width:130px}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app-shell{min-height:100vh}
+.topbar{position:fixed;left:0;right:0;top:0;height:54px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 14px 0 22px;z-index:50}
+.topbrand{font-size:17px;font-weight:900;display:flex;align-items:center;gap:10px}
+.zdot{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#1fd66f,#0a9a49);font-weight:900}
+.topright{display:flex;gap:16px;align-items:center;font-size:11px}
+.avatar{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:900;background:linear-gradient(135deg,#ec4899,#8b5cf6)}
+.sidebar{position:fixed;top:54px;left:0;bottom:0;width:178px;background:linear-gradient(180deg,var(--navy),var(--navy2));color:#fff;z-index:40;display:flex;flex-direction:column}
+.side-logo{padding:17px 14px 14px;border-bottom:1px solid rgba(255,255,255,.08)}
+.side-logo .mark{font-size:28px;font-weight:900}
+.side-logo b{display:block;font-size:14px;margin-top:4px}
+.side-logo span{display:block;font-size:9px;color:#c5d7ea;margin-top:2px}
+.menu{padding:10px 8px;display:flex;flex-direction:column;gap:3px;flex:1}
+.menu button{border:0;background:transparent;color:#d9e6f5;text-align:left;padding:10px 10px;border-radius:7px;font-size:10px;font-weight:800;display:flex;gap:8px;align-items:center}
+.menu button:hover{background:rgba(255,255,255,.07)}
+.menu button.active{background:linear-gradient(90deg,#1473f3,#1165dc);color:#fff}
+.menu .ico{width:16px;text-align:center}
+.side-user{padding:12px;border-top:1px solid rgba(255,255,255,.08);font-size:9px;color:#c8d8ea}
+.side-user b{color:#fff;display:block;font-size:10px}
+.main{margin-left:178px;padding:70px 14px 86px}
+.page{max-width:1320px;margin:auto}
+.hero{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:15px 16px;background:linear-gradient(100deg,var(--blue),var(--blue2));color:#fff;border-radius:10px 10px 0 0}
+.hero-left{display:flex;gap:12px;align-items:center}
+.hero-icon{width:46px;height:46px;border-radius:9px;background:#fff;color:var(--blue);display:grid;place-items:center;font-weight:900;font-size:20px}
+.hero h1{font-size:20px;margin:0 0 3px}
+.hero p{font-size:10px;margin:0;color:#e8f4ff}
+.teamcard{background:rgba(255,255,255,.94);color:#173759;border-radius:9px;padding:8px 11px;min-width:170px}
+.teamcard b{display:block;font-size:10px}.teamcard span{font-size:8px;color:#6b7a90}
+.card{background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 4px 18px rgba(20,61,105,.05)}
+.toolbar{padding:10px;display:grid;grid-template-columns:155px 145px minmax(210px,1fr) auto auto auto;gap:7px;align-items:end}
+.field label{display:block;font-size:8px;color:#64748b;margin-bottom:3px;font-weight:800}
+.field input,.field select,.search,textarea{width:100%;border:1px solid #cad7e7;border-radius:7px;background:#fff;min-height:36px;padding:8px;font-size:10px}
+.btn{border:0;border-radius:7px;padding:10px 13px;font-size:9px;font-weight:900}
+.btn-blue{background:var(--blue);color:#fff}.btn-soft{background:#edf4ff;color:#0f59c7}.btn-green{background:var(--green);color:#fff}.btn-red{background:var(--red);color:#fff}.btn-orange{background:var(--amber);color:#fff}.btn-purple{background:var(--purple);color:#fff}
+.quick{padding:0 10px 10px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.qchip{display:flex;align-items:center;gap:7px;background:#f4f8fd;border:1px solid #e0e8f3;padding:7px 9px;border-radius:8px;font-size:9px;font-weight:800}
+.qbadge{width:26px;height:26px;border-radius:6px;display:grid;place-items:center;color:#fff;font-weight:900}
+.stats{display:flex;gap:7px;margin-left:auto}
+.stat{min-width:62px;padding:7px 9px;border:1px solid #dfe8f3;border-radius:8px;background:#f9fbfe;text-align:center}
+.stat b{display:block;font-size:13px}.stat span{font-size:7px;color:#6b7a90}
+.tablewrap{overflow:auto;max-height:58vh;border-top:1px solid #e6edf6}
+table{width:100%;border-collapse:collapse;font-size:9px}
+th{position:sticky;top:0;z-index:2;background:#eaf2fb;color:#27486c;padding:9px 7px;border-bottom:1px solid #d8e3ef;text-align:left}
+td{padding:7px;border-bottom:1px solid #edf2f7;vertical-align:middle}
+tr:hover td{background:#fbfdff}
+.status-set{display:flex;gap:4px;flex-wrap:wrap}
+.sbtn{border:1px solid #dbe5f2;background:#f0f4f8;color:#607086;border-radius:6px;padding:5px 8px;font-size:8px;font-weight:900}
+.sbtn.onP{background:#18b565;color:#fff}.sbtn.onOFF{background:#73879f;color:#fff}.sbtn.onL{background:#ffb857;color:#fff}.sbtn.onA{background:#ef3340;color:#fff}
+.otbox{width:56px!important;min-height:28px!important;padding:5px!important;text-align:center}
+.remark{min-width:150px;min-height:28px!important}
+.actions-dot{font-size:17px;font-weight:900;text-align:center}
+.footer-submit{padding:10px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid #e6edf6}
+.subnav{display:flex;gap:6px;padding:10px;background:#fff;border:1px solid var(--line);border-radius:9px;margin-bottom:10px;overflow:auto}
+.subnav button{white-space:nowrap}
+.dashboard-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.dstat{padding:14px;border-radius:10px;background:#fff;border:1px solid var(--line)}
+.dstat .num{font-size:25px;font-weight:900}.dstat .lab{font-size:9px;color:#6b7a90}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.panel{padding:14px}
+.panel h3{margin:0 0 10px;font-size:14px}
+.activity{display:flex;flex-direction:column;gap:8px}
+.activity-item{display:flex;gap:9px;align-items:flex-start;padding:8px;background:#f8fbff;border-radius:8px}
+.actdot{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#def7ec;color:#0b9a57}
+.small{font-size:9px}.muted{color:#6b7a90}
+.login-wrap{max-width:430px;margin:9vh auto;padding:0 14px}
+.login-card{padding:24px}
+.login-logo{width:112px;height:112px;border-radius:50%;margin:0 auto 15px;background:#fff;border:1px solid #dbe5f2;display:grid;place-items:center;font-size:38px;font-weight:900;color:var(--navy)}
+.login-card h2{text-align:center;margin:0 0 5px}.login-card p{text-align:center;font-size:10px;color:#6b7a90}
+.login-card label{font-size:9px;font-weight:800;display:block;margin:10px 0 4px}
+.login-card input,.login-card select{width:100%;min-height:42px;border:1px solid #cbd8e8;border-radius:8px;padding:9px}
+.notice{padding:9px;border-radius:8px;font-size:9px;font-weight:800;background:#fff7ed;color:#9a3412;margin:8px 0}.ok{background:#ecfdf3;color:#166534}
+.mobilebar{display:none}
+.modal{position:fixed;inset:0;background:rgba(3,15,30,.5);z-index:100;display:flex;align-items:center;justify-content:center;padding:12px}
+.modal-card{width:min(640px,96vw);max-height:90vh;overflow:auto;background:#fff;border-radius:12px;padding:16px}
+.modal-card h3{margin-top:0}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.form-grid .full{grid-column:1/-1}
+@media(max-width:900px){
+  .sidebar{display:none}.main{margin-left:0;padding:64px 8px 80px}.topbar{height:54px;padding:0 10px}.topbrand{font-size:14px}
+  .toolbar{grid-template-columns:1fr 1fr}.stats{width:100%;margin-left:0}.stat{flex:1}
+  .dashboard-grid{grid-template-columns:1fr 1fr}.two-col{grid-template-columns:1fr}
+  .teamcard{display:none}.hero h1{font-size:17px}.hero-icon{width:40px;height:40px}
+  table{font-size:8.5px}.remark{min-width:120px}.mobilebar{position:fixed;display:flex;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #dce6f2;z-index:70;justify-content:space-around;padding:6px}
+  .mobilebar button{border:0;background:transparent;font-size:8px;color:#52657c;padding:7px}.mobilebar button.active{color:var(--blue);font-weight:900}
+  .topright .datefull{display:none}
 }
 </style>
 </head>
 <body>
-<div class="top">DMT Sea Palace - PostgreSQL Attendance Test</div>
-
-<div id="loginView" class="wrap login">
-  <div class="card">
-    <h2>User Login</h2>
-    <div class="muted">PostgreSQL test system — separate from live Google Sheets app</div>
-    <div style="margin-top:14px">
-      <label>User</label>
-      <select id="loginUser"><option>Loading users...</option></select>
-    </div>
-    <div style="margin-top:10px">
-      <label>PIN</label>
-      <input id="loginPin" type="password" placeholder="Enter PIN">
-    </div>
-    <button class="btn" style="width:100%;margin-top:12px" onclick="login()">Login</button>
+<div id="loginView" class="login-wrap">
+  <div class="card login-card">
+    <div class="login-logo">DMT</div>
+    <h2>DMT Sea Palace</h2>
+    <p>Construction Attendance & Approval System</p>
+    <label>User</label>
+    <select id="loginUser"><option>Loading users...</option></select>
+    <label>PIN</label>
+    <input id="loginPin" type="password" placeholder="Enter PIN">
+    <button class="btn btn-blue" style="width:100%;margin-top:12px" onclick="login()">Login</button>
     <div id="loginMsg"></div>
+    <button class="btn btn-soft" style="width:100%;margin-top:8px" onclick="openApiSettings()">API Settings</button>
   </div>
 </div>
 
-<div id="appView" class="wrap hidden">
-  <div class="card row" style="justify-content:space-between">
-    <div>
-      <h2 id="welcome">Attendance</h2>
-      <div id="who" class="muted"></div>
-    </div>
-    <button class="bad" onclick="logout()">Logout</button>
+<div id="app" class="app-shell hidden">
+  <div class="topbar">
+    <div class="topbrand"><div class="zdot">Z</div><span>DMT Sea Palace</span></div>
+    <div class="topright"><span class="datefull" id="topDate"></span><div class="avatar" id="topAvatar">S1</div><div><b id="topUser">SUP001</b><div style="font-size:8px;color:#cfe1f5" id="topRole">Supervisor</div></div></div>
   </div>
-
-  <div id="supervisorPanel" class="hidden">
-    <div class="card">
-      <div class="row" style="justify-content:space-between">
-        <div>
-          <h3>Daily Attendance</h3>
-          <div class="muted">All workers in one page</div>
-        </div>
-        <div class="row">
-          <input id="attDate" type="date" style="width:170px">
-          <button class="soft" onclick="loadSupervisorDay()">Load</button>
-        </div>
-      </div>
-      <div id="dayApproval" class="notice hidden"></div>
-    </div>
-
-    <div class="card">
-      <div class="scroll">
-        <table>
-          <thead><tr><th>#</th><th>ID</th><th>Name</th><th>Designation</th><th>Status</th><th>OT</th><th>Comment</th><th>Correction</th></tr></thead>
-          <tbody id="workerBody"></tbody>
-        </table>
-      </div>
-      <button id="submitAttendanceBtn" class="good" style="width:100%;margin-top:12px" onclick="submitAttendance()">Submit Attendance to CM</button>
-    </div>
-  </div>
-
-  <div id="cmPanel" class="hidden">
-    <div class="tabs">
-      <button class="active" onclick="showCMTab('approvals',this)">Daily Approvals</button>
-      <button onclick="showCMTab('corrections',this)">Individual Corrections</button>
-    </div>
-    <div id="cmApprovals" class="card"></div>
-    <div id="cmCorrections" class="card hidden"></div>
-  </div>
-
-  <div id="adminPanel" class="hidden">
-    <div class="grid" id="adminStats"></div>
-    <div class="card">
-      <div class="row" style="justify-content:space-between">
-        <h3>Workers</h3>
-        <button class="soft" onclick="loadAdminWorkers()">Refresh</button>
-      </div>
-      <div class="scroll">
-        <table>
-          <thead><tr><th>ID</th><th>Name</th><th>Designation</th><th>Supervisor</th><th>Location</th><th>Status</th><th>OT</th></tr></thead>
-          <tbody id="adminWorkerBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+  <aside class="sidebar">
+    <div class="side-logo"><div class="mark">◢◣</div><b>DMT Sea Palace</b><span>Construction Attendance</span></div>
+    <div id="sideMenu" class="menu"></div>
+    <div class="side-user"><b id="sideUser">SUP001</b><span id="sideRole">Supervisor</span><div style="margin-top:8px;cursor:pointer;color:#ffb6d7" onclick="logout()">↪ Logout</div></div>
+  </aside>
+  <main class="main"><div id="page" class="page"></div></main>
+  <div id="mobileBar" class="mobilebar"></div>
 </div>
+
+<div id="modal" class="modal hidden"><div class="modal-card" id="modalCard"></div></div>
 
 <script>
-const API="https://taxi-shots-amend-johnny.trycloudflare.com";
-let token="";
+const DEFAULT_API="https://taxi-shots-amend-johnny.trycloudflare.com";
+let API=localStorage.getItem("pg_api_url")||DEFAULT_API;
+let token=sessionStorage.getItem("pg_token")||"";
 let currentUser=null;
-let currentWorkers=[];
+try{currentUser=JSON.parse(sessionStorage.getItem("pg_user")||"null")}catch(e){}
+let currentWorkers=[], currentDayApproval=null;
 
+const $=id=>document.getElementById(id);
+function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]))}
+function todayISO(){return new Date().toISOString().slice(0,10)}
+function prettyDate(v){if(!v)return"";const d=new Date(v+"T00:00:00");return d.toLocaleDateString(undefined,{day:"2-digit",month:"short",year:"numeric"})}
 async function req(path,opts={}){
-  const headers={"Content-Type":"application/json",...(opts.headers||{})};
-  if(token) headers.Authorization="Bearer "+token;
-  const r=await fetch(API+path,{...opts,headers,cache:"no-store"});
-  let d={};
-  try{d=await r.json()}catch(e){}
-  if(!r.ok) throw new Error(d.detail||("HTTP "+r.status));
-  return d;
+  const headers={"Content-Type":"application/json",...(opts.headers||{})}; if(token)headers.Authorization="Bearer "+token;
+  const r=await fetch(API+path,{...opts,headers,cache:"no-store"}); let d={}; try{d=await r.json()}catch(e){}
+  if(!r.ok)throw new Error(d.detail||("HTTP "+r.status)); return d;
 }
-
-async function loadUsers(){
-  try{
-    const d=await req("/api/users");
-    loginUser.innerHTML='<option value="">Select User</option>'+d.users.map(u=>`<option value="${u.supervisor_id}">${u.supervisor_name} (${u.supervisor_id})</option>`).join("");
-  }catch(e){
-    loginUser.innerHTML='<option value="">Unable to load users</option>';
-    loginMsg.innerHTML=`<div class="notice">${e.message}</div>`;
-  }
+function openModal(html){$("modalCard").innerHTML=html;$("modal").classList.remove("hidden")}
+function closeModal(){$("modal").classList.add("hidden")}
+$("modal").addEventListener("click",e=>{if(e.target.id==="modal")closeModal()})
+function openApiSettings(){const v=prompt("API URL:",API);if(v){API=v.replace(/\/$/,"");localStorage.setItem("pg_api_url",API);location.reload()}}
+async function loadUsers(){try{const d=await req("/api/users");$("loginUser").innerHTML='<option value="">Select User</option>'+d.users.map(u=>`<option value="${esc(u.supervisor_id)}">${esc(u.supervisor_name)} (${esc(u.supervisor_id)})</option>`).join("")}catch(e){$("loginMsg").innerHTML=`<div class="notice">${esc(e.message)}</div>`}}
+async function login(){try{const d=await req("/api/login",{method:"POST",body:JSON.stringify({user_id:$("loginUser").value,pin:$("loginPin").value})});token=d.token;currentUser=d.user;sessionStorage.setItem("pg_token",token);sessionStorage.setItem("pg_user",JSON.stringify(currentUser));showApp()}catch(e){$("loginMsg").innerHTML=`<div class="notice">${esc(e.message)}</div>`}}
+function logout(){sessionStorage.clear();location.reload()}
+function roleLabel(){return currentUser?.role==="admin"?"System Administrator":currentUser?.role==="cm"?"Construction Manager":"Supervisor"}
+function setTop(){const id=currentUser.user_id;$("topUser").textContent=id;$("topRole").textContent=roleLabel();$("sideUser").textContent=id;$("sideRole").textContent=roleLabel();$("topAvatar").textContent=currentUser.role==="admin"?"AD":currentUser.role==="cm"?"CM":id.slice(0,2);$("topDate").textContent=new Date().toLocaleDateString(undefined,{weekday:"short",day:"2-digit",month:"short",year:"numeric"})}
+function menuForRole(){
+  if(currentUser.role==="supervisor")return [["Attendance","attendance","▣"],["History","history","◷"],["Corrections","corrections","✎"],["My Team","team","👥"],["Equipment","equipment","▤"],["Settings","settings","⚙"]];
+  if(currentUser.role==="cm")return [["CM Approval","cm","✓"],["Corrections","cmcorr","✎"],["Reports","reports","▤"],["Settings","settings","⚙"]];
+  return [["Dashboard","dashboard","⌂"],["Attendance","adminattendance","▣"],["Supervisors","supervisors","♙"],["Employees","employees","👥"],["CM Approval","adminapprovals","✓"],["Corrections","admincorr","✎"],["Equipment","adminequipment","▤"],["Reports","reports","▤"],["Master Data","master","▦"],["Settings","settings","⚙"]];
 }
+function renderMenus(active){const items=menuForRole();$("sideMenu").innerHTML=items.map(x=>`<button class="${x[1]===active?"active":""}" onclick="go('${x[1]}')"><span class="ico">${x[2]}</span>${x[0]}</button>`).join("");$("mobileBar").innerHTML=items.slice(0,5).map(x=>`<button class="${x[1]===active?"active":""}" onclick="go('${x[1]}')">${x[2]}<br>${x[0]}</button>`).join("")}
+function showApp(){$("loginView").classList.add("hidden");$("app").classList.remove("hidden");setTop();go(currentUser.role==="admin"?"dashboard":currentUser.role==="cm"?"cm":"attendance")}
+async function go(page){renderMenus(page);if(page==="attendance")return renderAttendance();if(page==="dashboard")return renderAdminDashboard();if(page==="cm")return renderCM(false);if(page==="cmcorr")return renderCM(true);if(page==="employees")return renderEmployees();if(page==="supervisors")return renderSupervisors();if(page==="master")return renderMaster();if(page==="adminattendance")return renderAdminAttendance();if(page==="adminapprovals")return renderAdminApprovals();if(page==="admincorr")return renderAdminCorrections();if(page==="adminequipment"||page==="equipment")return renderEquipment();if(page==="team")return renderTeam();if(page==="corrections")return renderSupervisorCorrections();if(page==="history")return renderHistory();if(page==="reports")return renderReports();if(page==="settings")return renderSettings()}
+function hero(title,sub){return `<div class="hero"><div class="hero-left"><div class="hero-icon">▣</div><div><h1>${title}</h1><p>${sub}</p></div></div><div class="teamcard"><b>${currentUser.role==="supervisor"?"Site Team A":"DMT Sea Palace"}</b><span>${esc(currentUser.user_id)} • ${roleLabel()}</span></div></div>`}
 
-async function login(){
-  try{
-    const d=await req("/api/login",{method:"POST",body:JSON.stringify({user_id:loginUser.value,pin:loginPin.value})});
-    token=d.token; currentUser=d.user;
-    sessionStorage.setItem("pg_token",token);
-    sessionStorage.setItem("pg_user",JSON.stringify(currentUser));
-    openRole();
-  }catch(e){
-    loginMsg.innerHTML=`<div class="notice">${e.message}</div>`;
-  }
+async function renderAttendance(){
+  $("page").innerHTML=`<div class="card">${hero("Daily Attendance","Mark attendance for all your workers in one page")}
+    <div class="toolbar">
+      <div class="field"><label>Date</label><input id="attDate" type="date" value="${todayISO()}"></div>
+      <div class="field"><label>Team</label><select disabled><option>All Workers</option></select></div>
+      <div class="field"><label>Search</label><input id="workerSearch" class="search" placeholder="Search worker name or ID..." oninput="drawWorkers()"></div>
+      <button class="btn btn-blue" onclick="loadDay()">Load Team</button><button class="btn btn-soft" onclick="clearOT()">Clear OT</button><button class="btn btn-green" onclick="submitDay()">Submit All</button>
+    </div><div class="quick">
+      <div class="qchip"><span class="qbadge" style="background:#13a45b">P</span>Present</div><div class="qchip"><span class="qbadge" style="background:#73879f">OFF</span>Off</div><div class="qchip"><span class="qbadge" style="background:#ff9f1c">L</span>Leave</div><div class="qchip"><span class="qbadge" style="background:#e72939">A</span>Absent</div><div class="stats" id="attStats"></div>
+    </div><div id="approvalBanner"></div><div class="tablewrap"><table><thead><tr><th>#</th><th>Worker ID</th><th>Worker Name</th><th>Position</th><th>Attendance</th><th>OT Hrs</th><th>Work Remark</th><th>Actions</th></tr></thead><tbody id="workerRows"></tbody></table></div>
+    <div class="footer-submit"><button class="btn btn-green" onclick="submitDay()">Submit Attendance to CM</button></div>
+  </div>`; await loadDay()
 }
+async function loadDay(){try{const d=await req("/api/supervisor/workers?attendance_date="+encodeURIComponent($("attDate").value));currentWorkers=d.workers||[];currentDayApproval=d.approval;drawWorkers();drawApproval()}catch(e){alert(e.message)}}
+function drawApproval(){const b=$("approvalBanner");if(!b)return;if(!currentDayApproval){b.innerHTML="";return}const s=String(currentDayApproval.cm_status||"");b.innerHTML=`<div class="notice ${s.toLowerCase()==="approved"?"ok":""}" style="margin:0 10px 8px">CM Status: <b>${esc(s)}</b>${currentDayApproval.cm_remark?" • "+esc(currentDayApproval.cm_remark):""}</div>`}
+function drawWorkers(){const q=($("workerSearch")?.value||"").toLowerCase();const list=currentWorkers.filter(w=>`${w.worker_id} ${w.worker_name} ${w.designation}`.toLowerCase().includes(q));$("workerRows").innerHTML=list.map((w,ii)=>{const i=currentWorkers.indexOf(w),locked=!!w.submitted;const st=w.work_status||"P";return `<tr><td>${ii+1}</td><td><b>${esc(w.worker_id)}</b></td><td>${esc(w.worker_name)}</td><td>${esc(w.designation||"")}</td><td><div class="status-set">${["P","OFF","AL","A"].map(s=>`<button class="sbtn ${st===s?(s==="P"?"onP":s==="OFF"?"onOFF":s==="A"?"onA":"onL"):""}" ${locked?"disabled":""} onclick="setStatus(${i},'${s}')">${s==="AL"?"L":s}</button>`).join("")}<select ${locked?"disabled":""} style="border:1px solid #dbe5f2;border-radius:6px;font-size:8px;padding:5px" onchange="setStatus(${i},this.value)"><option value="">More</option><option>SL</option><option>PH</option><option>BD</option><option>EL</option></select></div></td><td><input class="field otbox" type="number" min="0" max="8" step=".5" value="${Number(w.ot_hours||0)}" ${locked?"disabled":""} onchange="currentWorkers[${i}].ot_hours=Number(this.value)"></td><td><input class="remark" value="${esc(w.supervisor_comment||"")}" ${locked?"disabled":""} onchange="currentWorkers[${i}].supervisor_comment=this.value"></td><td>${locked?`<button class="btn btn-orange" onclick="correction(${i})">Correction</button>`:'<span class="actions-dot">⋮</span>'}</td></tr>`}).join("");const p=currentWorkers.filter(w=>w.work_status==="P").length,a=currentWorkers.filter(w=>w.work_status==="A").length,l=currentWorkers.filter(w=>["AL","SL","EL"].includes(w.work_status)).length,ot=currentWorkers.reduce((s,w)=>s+Number(w.ot_hours||0),0);$("attStats").innerHTML=[[currentWorkers.length,"Total"],[p,"Present"],[l,"Leave"],[a,"Absent"],[ot,"OT (hrs)"]].map(x=>`<div class="stat"><b>${x[0]}</b><span>${x[1]}</span></div>`).join("")}
+function setStatus(i,s){if(!s)return;currentWorkers[i].work_status=s;drawWorkers()} function clearOT(){currentWorkers.forEach(w=>{if(!w.submitted)w.ot_hours=0});drawWorkers()}
+async function submitDay(){if(currentDayApproval&&["pending","approved"].includes(String(currentDayApproval.cm_status).toLowerCase()))return alert("This day is already "+currentDayApproval.cm_status+" and locked.");if(!confirm("Submit this full day to CM?"))return;try{const d=await req("/api/supervisor/attendance/submit",{method:"POST",body:JSON.stringify({attendance_date:$("attDate").value,supervisor_id:currentUser.user_id,items:currentWorkers.map(w=>({worker_id:w.worker_id,work_status:w.work_status,ot_hours:Number(w.ot_hours||0),supervisor_comment:w.supervisor_comment||""}))})});alert(d.message);loadDay()}catch(e){alert(e.message)}}
+async function correction(i){const w=currentWorkers[i];openModal(`<h3>Correction Request</h3><div class="small muted">${esc(w.worker_id)} • ${esc(w.worker_name)} • ${prettyDate($("attDate").value)}</div><div class="form-grid" style="margin-top:10px"><div><label>Status</label><select id="cStatus">${["P","OFF","A","AL","SL","PH","BD","EL"].map(s=>`<option ${w.work_status===s?"selected":""}>${s}</option>`).join("")}</select></div><div><label>OT</label><input id="cOT" type="number" min="0" max="8" step=".5" value="${Number(w.ot_hours||0)}"></div><div class="full"><label>Reason</label><textarea id="cReason" rows="3"></textarea></div></div><div class="row" style="margin-top:12px"><button class="btn btn-green" onclick="sendCorrection(${i})">Submit Correction</button><button class="btn btn-soft" onclick="closeModal()">Cancel</button></div>`)}
+async function sendCorrection(i){const w=currentWorkers[i];try{const d=await req("/api/supervisor/corrections",{method:"POST",body:JSON.stringify({attendance_date:$("attDate").value,worker_id:w.worker_id,requested_status:$("cStatus").value,requested_ot:Number($("cOT").value||0),reason:$("cReason").value})});closeModal();alert("Correction sent: "+d.request_id)}catch(e){alert(e.message)}}
 
-function logout(){
-  sessionStorage.clear();
-  location.reload();
-}
+async function renderCM(correctionsOnly){$("page").innerHTML=`${hero("CM Approval","Review supervisor submissions and individual corrections")}<div class="subnav"><button class="btn ${correctionsOnly?"btn-soft":"btn-blue"}" onclick="go('cm')">Daily Approvals</button><button class="btn ${correctionsOnly?"btn-blue":"btn-soft"}" onclick="go('cmcorr')">Individual Corrections</button></div><div id="cmContent"></div>`; if(correctionsOnly)loadCMCorrections();else loadCMApprovals()}
+async function loadCMApprovals(){try{const d=await req("/api/cm/approvals?status=pending");$("cmContent").innerHTML=`<div class="card panel"><h3>Pending Daily Approvals (${d.approvals.length})</h3>${d.approvals.length?d.approvals.map(a=>`<div class="card panel" style="margin:8px 0"><div class="row" style="justify-content:space-between"><div><b>${prettyDate(a.approval_date)} • ${esc(a.supervisor_name)} (${esc(a.supervisor_id)})</b><div class="small muted">${a.worker_count} workers • Normal ${a.normal_hours} • OT ${a.ot_hours}</div></div><div class="row"><button class="btn btn-green" onclick="cmDecision('${a.approval_id}','approve')">Approve</button><button class="btn btn-red" onclick="cmDecision('${a.approval_id}','reject')">Reject</button></div></div></div>`).join(""):'<div class="muted">No pending approvals.</div>'}</div>`}catch(e){$("cmContent").innerHTML=`<div class="notice">${esc(e.message)}</div>`}}
+async function cmDecision(id,decision){const remark=prompt("CM remark (optional):","")||"";try{await req("/api/cm/approval/decision",{method:"POST",body:JSON.stringify({approval_id:id,decision,remark})});loadCMApprovals()}catch(e){alert(e.message)}}
+async function loadCMCorrections(){try{const d=await req("/api/cm/corrections?status=pending");$("cmContent").innerHTML=`<div class="card panel"><h3>Individual Employee Corrections (${d.corrections.length})</h3>${d.corrections.length?d.corrections.map(c=>`<div class="card panel" style="margin:8px 0;border-left:4px solid var(--amber)"><b>${prettyDate(c.request_date)} • ${esc(c.worker_id)} • ${esc(c.worker_name)}</b><div class="small muted">Supervisor: ${esc(c.supervisor_id)}</div><div class="two-col"><div class="stat"><b style="font-size:12px">${esc(c.current_status)} / OT ${c.current_ot}</b><span>Original</span></div><div class="stat"><b style="font-size:12px">${esc(c.requested_status)} / OT ${c.requested_ot}</b><span>Requested</span></div></div><div class="small" style="margin-top:8px"><b>Reason:</b> ${esc(c.reason||"—")}</div><div class="row" style="margin-top:10px"><button class="btn btn-red" onclick="cmCorrDecision('${c.request_id}','reject')">Reject</button><button class="btn btn-green" onclick="cmCorrDecision('${c.request_id}','approve')">Approve</button></div></div>`).join(""):'<div class="muted">No pending corrections.</div>'}</div>`}catch(e){$("cmContent").innerHTML=`<div class="notice">${esc(e.message)}</div>`}}
+async function cmCorrDecision(id,decision){const remark=prompt("CM remark (optional):","")||"";try{await req("/api/cm/corrections/decision",{method:"POST",body:JSON.stringify({request_id:id,decision,remark})});loadCMCorrections()}catch(e){alert(e.message)}}
 
-function openRole(){
-  loginView.classList.add("hidden");
-  appView.classList.remove("hidden");
-  welcome.textContent="Welcome, "+currentUser.name;
-  who.textContent=currentUser.user_id+" • "+currentUser.role.toUpperCase();
+async function renderAdminDashboard(){$("page").innerHTML=`${hero("Dashboard","Welcome back! Here's today's overview.")}<div id="dashStats" class="dashboard-grid" style="margin-top:10px"></div><div class="two-col"><div class="card panel"><h3>Today's Attendance</h3><div id="todaySummary"></div></div><div class="card panel"><h3>Recent Activities</h3><div id="recentActivities" class="activity"></div></div></div><div class="dashboard-grid" style="margin-top:10px" id="bottomStats"></div>`;try{const d=await req("/api/admin/stats"),s=d.stats;$("dashStats").innerHTML=[["👥",s.workers,"Total Workers","#eaf3ff"],["✓",s.active_workers,"Active Workers","#ecfdf3"],["▦",s.company_master,"Company Master","#fff7e6"],["▣",s.attendance_rows,"Attendance Rows","#fff1f2"]].map(x=>`<div class="dstat" style="background:${x[3]}"><div>${x[0]}</div><div class="num">${x[1]}</div><div class="lab">${x[2]}</div></div>`).join("");$("bottomStats").innerHTML=[["Pending Approvals",s.pending_approvals,"#fff7e6"],["Pending Corrections",s.pending_corrections,"#f3e8ff"],["Equipment","—","#ecfdf3"],["Total Employees",s.workers,"#eaf3ff"]].map(x=>`<div class="dstat" style="background:${x[2]}"><div class="num">${x[1]}</div><div class="lab">${x[0]}</div></div>`).join("");$("todaySummary").innerHTML=`<div style="font-size:48px;font-weight:900;color:var(--green)">${s.active_workers}</div><div class="muted">Active workers in system</div>`;const a=await req("/api/admin/recent-activity");$("recentActivities").innerHTML=(a.items||[]).map(i=>`<div class="activity-item"><div class="actdot">●</div><div><b class="small">${esc(i.detail)}</b><div class="small muted">${esc(i.actor||"")} • ${esc(i.event_time||"")}</div></div></div>`).join("")||'<div class="muted">No recent activity.</div>'}catch(e){alert(e.message)}}
 
-  supervisorPanel.classList.add("hidden");
-  cmPanel.classList.add("hidden");
-  adminPanel.classList.add("hidden");
+async function renderEmployees(){$("page").innerHTML=`${hero("Employees","Manage current project manpower")}<div class="card panel"><div class="row" style="justify-content:space-between"><div class="row"><input id="empQ" placeholder="Search ID, name, designation..." style="width:270px" oninput="loadEmployees()"><select id="empStatus" style="width:140px" onchange="loadEmployees()"><option value="all">All Status</option><option>Active</option><option>Released</option></select></div><button class="btn btn-blue" onclick="employeeForm()">+ Add Employee</button></div><div class="tablewrap" style="margin-top:10px"><table><thead><tr><th>ID</th><th>Name</th><th>Designation</th><th>Supervisor</th><th>Location</th><th>Status</th><th>OT</th><th>Actions</th></tr></thead><tbody id="empRows"></tbody></table></div></div>`;loadEmployees()}
+async function loadEmployees(){try{const q=encodeURIComponent($("empQ")?.value||""),st=encodeURIComponent($("empStatus")?.value||"all");const d=await req(`/api/admin/workers?q=${q}&status=${st}`);$("empRows").innerHTML=d.workers.map(w=>`<tr><td><b>${esc(w.worker_id)}</b></td><td>${esc(w.worker_name)}</td><td>${esc(w.designation||"")}</td><td>${esc(w.supervisor_id||"—")}</td><td>${esc(w.location||"")}</td><td>${esc(w.status||"")}</td><td>${esc(w.ot_eligible||"")}</td><td><button class="btn btn-soft" onclick='employeeForm(${JSON.stringify(w)})'>Edit</button> <button class="btn btn-red" onclick="deleteWorker('${esc(w.worker_id)}')">Delete</button></td></tr>`).join("")}catch(e){alert(e.message)}}
+function employeeForm(w=null){openModal(`<h3>${w?"Edit":"Add"} Employee</h3><div class="form-grid"><div><label>Worker ID</label><input id="fId" value="${esc(w?.worker_id||"")}" ${w?"disabled":""}></div><div><label>Name</label><input id="fName" value="${esc(w?.worker_name||"")}"></div><div><label>Designation</label><input id="fDes" value="${esc(w?.designation||"")}"></div><div><label>Trade</label><input id="fTrade" value="${esc(w?.trade||"")}"></div><div><label>Supervisor</label><input id="fSup" value="${esc(w?.supervisor_id||"")}"></div><div><label>Location</label><input id="fLoc" value="${esc(w?.location||"")}"></div><div><label>Status</label><select id="fStatus"><option ${w?.status==="Active"?"selected":""}>Active</option><option ${w?.status==="Released"?"selected":""}>Released</option></select></div><div><label>OT Eligible</label><select id="fOT"><option ${w?.ot_eligible==="Yes"?"selected":""}>Yes</option><option ${w?.ot_eligible==="No"?"selected":""}>No</option></select></div></div><div class="row" style="margin-top:12px"><button class="btn btn-green" onclick="saveWorker('${w?esc(w.worker_id):""}')">Save</button><button class="btn btn-soft" onclick="closeModal()">Cancel</button></div>`)}
+async function saveWorker(existing){const body={worker_name:$("fName").value,designation:$("fDes").value,trade:$("fTrade").value,supervisor_id:$("fSup").value||null,location:$("fLoc").value,status:$("fStatus").value,ot_eligible:$("fOT").value};try{if(existing)await req("/api/admin/workers/"+encodeURIComponent(existing),{method:"PUT",body:JSON.stringify(body)});else{body.worker_id=$("fId").value;await req("/api/admin/workers",{method:"POST",body:JSON.stringify(body)})}closeModal();loadEmployees()}catch(e){alert(e.message)}}
+async function deleteWorker(id){if(!confirm("Delete "+id+"?"))return;try{await req("/api/admin/workers/"+encodeURIComponent(id),{method:"DELETE"});loadEmployees()}catch(e){alert(e.message)}}
 
-  if(currentUser.role==="supervisor"){
-    supervisorPanel.classList.remove("hidden");
-    attDate.value=new Date().toISOString().slice(0,10);
-    loadSupervisorDay();
-  }else if(currentUser.role==="cm"){
-    cmPanel.classList.remove("hidden");
-    loadCMApprovals();
-    loadCMCorrections();
-  }else{
-    adminPanel.classList.remove("hidden");
-    loadAdmin();
-  }
-}
+async function renderSupervisors(){$("page").innerHTML=`${hero("Supervisors & Users","Manage Supervisor, CM and Admin accounts")}<div class="card panel"><div class="row" style="justify-content:flex-end"><button class="btn btn-blue" onclick="supervisorForm()">+ Add User</button></div><div class="tablewrap" style="margin-top:10px"><table><thead><tr><th>ID</th><th>Name</th><th>Role</th><th>Project</th><th>Status</th><th>Actions</th></tr></thead><tbody id="supRows"></tbody></table></div></div>`;loadSupervisors()}
+async function loadSupervisors(){try{const d=await req("/api/admin/supervisors");$("supRows").innerHTML=d.supervisors.map(s=>`<tr><td><b>${esc(s.supervisor_id)}</b></td><td>${esc(s.supervisor_name)}</td><td>${s.supervisor_id==="ADMIN"?"Admin":s.supervisor_id.startsWith("CM")?"CM":"Supervisor"}</td><td>${esc(s.project||"")}</td><td>${esc(s.status||"")}</td><td><button class="btn btn-soft" onclick='supervisorForm(${JSON.stringify(s)})'>Edit</button>${s.supervisor_id!=="ADMIN"?` <button class="btn btn-red" onclick="deleteSupervisor('${esc(s.supervisor_id)}')">Delete</button>`:""}</td></tr>`).join("")}catch(e){alert(e.message)}}
+function supervisorForm(s=null){openModal(`<h3>${s?"Edit":"Add"} User</h3><div class="form-grid"><div><label>User ID</label><input id="sId" value="${esc(s?.supervisor_id||"")}" ${s?"disabled":""}></div><div><label>Name</label><input id="sName" value="${esc(s?.supervisor_name||"")}"></div><div><label>PIN</label><input id="sPin" type="password" placeholder="${s?"Leave blank to keep current":""}"></div><div><label>Project</label><input id="sProj" value="${esc(s?.project||"")}"></div><div><label>Status</label><select id="sStatus"><option>Active</option><option>Inactive</option></select></div></div><div class="row" style="margin-top:12px"><button class="btn btn-green" onclick="saveSupervisor('${s?esc(s.supervisor_id):""}')">Save</button><button class="btn btn-soft" onclick="closeModal()">Cancel</button></div>`)}
+async function saveSupervisor(existing){try{if(existing){const body={supervisor_name:$("sName").value,project:$("sProj").value,status:$("sStatus").value};if($("sPin").value)body.pin=$("sPin").value;await req("/api/admin/supervisors/"+encodeURIComponent(existing),{method:"PUT",body:JSON.stringify(body)})}else await req("/api/admin/supervisors",{method:"POST",body:JSON.stringify({supervisor_id:$("sId").value,supervisor_name:$("sName").value,pin:$("sPin").value,project:$("sProj").value,status:$("sStatus").value})});closeModal();loadSupervisors()}catch(e){alert(e.message)}}
+async function deleteSupervisor(id){if(!confirm("Delete "+id+"?"))return;try{await req("/api/admin/supervisors/"+encodeURIComponent(id),{method:"DELETE"});loadSupervisors()}catch(e){alert(e.message)}}
 
-async function loadSupervisorDay(){
-  const dt=attDate.value;
-  if(!dt)return;
-  try{
-    const d=await req("/api/supervisor/workers?attendance_date="+encodeURIComponent(dt));
-    currentWorkers=d.workers||[];
-    renderWorkers();
-    if(d.approval){
-      dayApproval.classList.remove("hidden");
-      dayApproval.textContent="CM Status: "+d.approval.cm_status+(d.approval.cm_remark?" • "+d.approval.cm_remark:"");
-      submitAttendanceBtn.disabled=["pending","approved"].includes(String(d.approval.cm_status||"").toLowerCase());
-    }else{
-      dayApproval.classList.add("hidden");
-      submitAttendanceBtn.disabled=false;
-    }
-  }catch(e){ alert(e.message); }
-}
+async function renderMaster(){$("page").innerHTML=`${hero("Master Data","Search the company master employee list")}<div class="card panel"><div class="row"><input id="masterQ" placeholder="Search employee ID, name or designation..." style="max-width:420px" oninput="loadMaster()"><button class="btn btn-soft" onclick="loadMaster()">Search</button></div><div class="tablewrap" style="margin-top:10px"><table><thead><tr><th>Employee ID</th><th>Name</th><th>Designation</th><th>Project</th><th>Status</th></tr></thead><tbody id="masterRows"></tbody></table></div></div>`;loadMaster()}
+async function loadMaster(){try{const d=await req("/api/admin/company-master?q="+encodeURIComponent($("masterQ")?.value||"")+"&limit=100");$("masterRows").innerHTML=d.rows.map(r=>`<tr><td><b>${esc(r.employee_id)}</b></td><td>${esc(r.employee_name||"")}</td><td>${esc(r.designation||"")}</td><td>${esc(r.project||"")}</td><td>${esc(r.status||"")}</td></tr>`).join("")}catch(e){alert(e.message)}}
 
-function renderWorkers(){
-  workerBody.innerHTML=currentWorkers.map((w,i)=>{
-    const locked=!!w.submitted;
-    return `<tr>
-      <td>${i+1}</td>
-      <td><b>${w.worker_id}</b></td>
-      <td>${w.worker_name}</td>
-      <td>${w.designation||""}</td>
-      <td>
-        <select onchange="currentWorkers[${i}].work_status=this.value" ${locked?"disabled":""}>
-          ${["P","OFF","A","AL","SL","PH","BD","EL"].map(s=>`<option ${w.work_status===s?"selected":""}>${s}</option>`).join("")}
-        </select>
-      </td>
-      <td><input class="ot" type="number" min="0" max="8" step="0.5" value="${w.ot_hours||0}" onchange="currentWorkers[${i}].ot_hours=Number(this.value)" ${locked?"disabled":""}></td>
-      <td><input class="comment" value="${(w.supervisor_comment||"").replaceAll('"','&quot;')}" onchange="currentWorkers[${i}].supervisor_comment=this.value" ${locked?"disabled":""}></td>
-      <td>${locked?`<button class="warn" onclick="makeCorrection(${i})">Correction</button>`:"—"}</td>
-    </tr>`;
-  }).join("");
-}
+async function renderAdminAttendance(){$("page").innerHTML=`${hero("Attendance","Browse all PostgreSQL attendance records")}<div class="card panel"><div class="row"><input id="aaFrom" type="date"><input id="aaTo" type="date"><input id="aaWorker" placeholder="Worker ID..." style="width:140px"><button class="btn btn-blue" onclick="loadAdminAttendance()">Load</button></div><div class="tablewrap" style="margin-top:10px"><table><thead><tr><th>Date</th><th>ID</th><th>Name</th><th>Supervisor</th><th>Status</th><th>Normal</th><th>OT</th><th>Total</th><th>Comment</th></tr></thead><tbody id="aaRows"></tbody></table></div></div>`;loadAdminAttendance()}
+async function loadAdminAttendance(){try{let p=[];if($("aaFrom")?.value)p.push("date_from="+$("aaFrom").value);if($("aaTo")?.value)p.push("date_to="+$("aaTo").value);if($("aaWorker")?.value)p.push("worker_id="+encodeURIComponent($("aaWorker").value));const d=await req("/api/admin/attendance?"+p.join("&"));$("aaRows").innerHTML=d.attendance.map(a=>`<tr><td>${prettyDate(a.attendance_date)}</td><td>${esc(a.worker_id)}</td><td>${esc(a.worker_name)}</td><td>${esc(a.supervisor_id)}</td><td>${esc(a.work_status)}</td><td>${a.normal_hours}</td><td>${a.ot_hours}</td><td>${a.total_hours}</td><td>${esc(a.supervisor_comment||"")}</td></tr>`).join("")}catch(e){alert(e.message)}}
 
-async function submitAttendance(){
-  if(!confirm("Submit this full day to CM?"))return;
-  try{
-    const d=await req("/api/supervisor/attendance/submit",{method:"POST",body:JSON.stringify({
-      attendance_date:attDate.value,
-      supervisor_id:currentUser.user_id,
-      items:currentWorkers.map(w=>({
-        worker_id:w.worker_id,
-        work_status:w.work_status,
-        ot_hours:Number(w.ot_hours||0),
-        supervisor_comment:w.supervisor_comment||""
-      }))
-    })});
-    alert(d.message||"Submitted");
-    loadSupervisorDay();
-  }catch(e){alert(e.message)}
-}
+async function renderAdminApprovals(){$("page").innerHTML=`${hero("CM Approval","View all daily approval records")}<div class="card panel"><div class="tablewrap"><table><thead><tr><th>Date</th><th>Supervisor</th><th>Workers</th><th>Normal</th><th>OT</th><th>Status</th><th>Approved By</th></tr></thead><tbody id="apRows"></tbody></table></div></div>`;try{const d=await req("/api/admin/approvals?status=all");$("apRows").innerHTML=d.approvals.map(a=>`<tr><td>${prettyDate(a.approval_date)}</td><td>${esc(a.supervisor_name)} (${esc(a.supervisor_id)})</td><td>${a.worker_count}</td><td>${a.normal_hours}</td><td>${a.ot_hours}</td><td>${esc(a.cm_status)}</td><td>${esc(a.approved_by||"")}</td></tr>`).join("")}catch(e){alert(e.message)}}
+async function renderAdminCorrections(){$("page").innerHTML=`${hero("Corrections","View all individual correction requests")}<div class="card panel"><div class="tablewrap"><table><thead><tr><th>Date</th><th>Worker</th><th>Supervisor</th><th>Original</th><th>Requested</th><th>Reason</th><th>CM Status</th></tr></thead><tbody id="crRows"></tbody></table></div></div>`;try{const d=await req("/api/admin/corrections?status=all");$("crRows").innerHTML=d.corrections.map(c=>`<tr><td>${prettyDate(c.request_date)}</td><td>${esc(c.worker_id)} • ${esc(c.worker_name)}</td><td>${esc(c.supervisor_id)}</td><td>${esc(c.current_status)} / ${c.current_ot}</td><td>${esc(c.requested_status)} / ${c.requested_ot}</td><td>${esc(c.reason||"")}</td><td>${esc(c.cm_status||"")}</td></tr>`).join("")}catch(e){alert(e.message)}}
 
-async function makeCorrection(i){
-  const w=currentWorkers[i];
-  const status=prompt("Requested status (P/OFF/A/AL/SL/PH/BD/EL):",w.work_status);
-  if(!status)return;
-  const ot=prompt("Requested OT:",String(w.ot_hours||0));
-  if(ot===null)return;
-  const reason=prompt("Reason for correction:","");
-  if(reason===null)return;
-  try{
-    const d=await req("/api/supervisor/corrections",{method:"POST",body:JSON.stringify({
-      attendance_date:attDate.value,
-      worker_id:w.worker_id,
-      requested_status:status,
-      requested_ot:Number(ot||0),
-      reason
-    })});
-    alert("Correction request sent: "+d.request_id);
-  }catch(e){alert(e.message)}
-}
+async function renderEquipment(){$("page").innerHTML=`${hero("Equipment","Current vehicle and equipment assignments")}<div class="card panel"><div class="tablewrap"><table><thead><tr><th>Employee ID</th><th>Name</th><th>Designation</th><th>Vehicle</th><th>Equipment</th><th>Asset No.</th><th>Location</th><th>Status</th></tr></thead><tbody id="eqRows"></tbody></table></div></div>`;try{const d=await req(currentUser.role==="admin"?"/api/admin/equipment":"/api/admin/equipment");$("eqRows").innerHTML=d.equipment.map(e=>`<tr><td>${esc(e.employee_id||"")}</td><td>${esc(e.employee_name||"")}</td><td>${esc(e.designation||"")}</td><td>${esc(e.vehicle||"")}</td><td>${esc(e.equipment||"")}</td><td>${esc(e.plate_asset_no||"")}</td><td>${esc(e.location||"")}</td><td>${esc(e.status||"")}</td></tr>`).join("")}catch(e){$("eqRows").innerHTML=`<tr><td colspan="8">${esc(e.message)}</td></tr>`}}
 
-function showCMTab(name,btn){
-  document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
-  btn.classList.add("active");
-  cmApprovals.classList.toggle("hidden",name!=="approvals");
-  cmCorrections.classList.toggle("hidden",name!=="corrections");
-}
+async function renderTeam(){$("page").innerHTML=`${hero("My Team","Current workers assigned to you")}<div class="card panel"><div class="tablewrap"><table><thead><tr><th>ID</th><th>Name</th><th>Designation</th><th>Trade</th><th>Location</th><th>OT</th></tr></thead><tbody id="teamRows"></tbody></table></div></div>`;try{const d=await req("/api/supervisor/workers?attendance_date="+todayISO());$("teamRows").innerHTML=d.workers.map(w=>`<tr><td>${esc(w.worker_id)}</td><td>${esc(w.worker_name)}</td><td>${esc(w.designation||"")}</td><td>${esc(w.trade||"")}</td><td>${esc(w.location||"")}</td><td>${esc(w.ot_eligible||"")}</td></tr>`).join("")}catch(e){alert(e.message)}}
+function renderSupervisorCorrections(){$("page").innerHTML=`${hero("Correction Requests","Use Daily Attendance to open an approved back-date and correct an individual employee")}<div class="card panel"><div class="notice">Open the approved date in Daily Attendance. Submitted employees show a <b>Correction</b> button.</div></div>`}
+function renderHistory(){$("page").innerHTML=`${hero("History","Historical daily attendance is available by selecting a previous date")}<div class="card panel"><div class="muted">Use Daily Attendance and select any previous date to review your saved PostgreSQL records.</div></div>`}
 
-async function loadCMApprovals(){
-  try{
-    const d=await req("/api/cm/approvals?status=pending");
-    cmApprovals.innerHTML="<h3>Pending Daily Approvals</h3>"+(d.approvals.length?d.approvals.map(a=>`
-      <div class="card">
-        <b>${a.approval_date} • ${a.supervisor_name} (${a.supervisor_id})</b>
-        <div class="muted">${a.worker_count} workers • Normal ${a.normal_hours} • OT ${a.ot_hours}</div>
-        <div class="row" style="margin-top:9px">
-          <button class="good" onclick="cmDecision('${a.approval_id}','approve')">Approve</button>
-          <button class="bad" onclick="cmDecision('${a.approval_id}','reject')">Reject</button>
-        </div>
-      </div>`).join(""):"<div class='muted'>No pending approvals.</div>");
-  }catch(e){cmApprovals.innerHTML="<div class='notice'>"+e.message+"</div>"}
-}
+async function renderReports(){$("page").innerHTML=`${hero("Reports & Downloads","Download PostgreSQL system tables as CSV")}<div class="card panel"><div class="dashboard-grid">${["workers","attendance","daily_approvals","correction_requests","company_master","equipment_assignments","supervisors","attendance_codes"].map(t=>`<div class="dstat"><b>${t.replaceAll("_"," ")}</b><div style="margin-top:10px"><button class="btn btn-blue" onclick="downloadCSV('${t}')">Download CSV</button></div></div>`).join("")}</div></div>`}
+async function downloadCSV(table){try{const d=await req("/api/admin/export/"+table);const rows=d.rows||[];if(!rows.length)return alert("No rows");const cols=Object.keys(rows[0]);const csv=[cols.join(","),...rows.map(r=>cols.map(c=>`"${String(r[c]??"").replaceAll('"','""')}"`).join(","))].join("\n");const blob=new Blob([csv],{type:"text/csv"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=table+".csv";a.click();URL.revokeObjectURL(a.href)}catch(e){alert(e.message)}}
+function renderSettings(){$("page").innerHTML=`${hero("Settings","Connection and account settings")}<div class="card panel"><h3>API Connection</h3><div class="muted">${esc(API)}</div><button class="btn btn-soft" style="margin-top:10px" onclick="openApiSettings()">Change API URL</button><button class="btn btn-red" style="margin-top:10px;margin-left:6px" onclick="logout()">Logout</button></div>`}
 
-async function cmDecision(id,decision){
-  const remark=prompt("CM remark (optional):","")||"";
-  try{
-    await req("/api/cm/approval/decision",{method:"POST",body:JSON.stringify({approval_id:id,decision,remark})});
-    loadCMApprovals();
-  }catch(e){alert(e.message)}
-}
-
-async function loadCMCorrections(){
-  try{
-    const d=await req("/api/cm/corrections?status=pending");
-    cmCorrections.innerHTML="<h3>Pending Individual Corrections</h3>"+(d.corrections.length?d.corrections.map(c=>`
-      <div class="card">
-        <b>${c.request_date} • ${c.worker_id} • ${c.worker_name}</b>
-        <div class="muted">${c.current_status} / OT ${c.current_ot} → ${c.requested_status} / OT ${c.requested_ot}</div>
-        <div style="margin-top:5px">Reason: ${c.reason||"—"}</div>
-        <div class="row" style="margin-top:9px">
-          <button class="good" onclick="cmCorrDecision('${c.request_id}','approve')">Approve</button>
-          <button class="bad" onclick="cmCorrDecision('${c.request_id}','reject')">Reject</button>
-        </div>
-      </div>`).join(""):"<div class='muted'>No pending corrections.</div>");
-  }catch(e){cmCorrections.innerHTML="<div class='notice'>"+e.message+"</div>"}
-}
-
-async function cmCorrDecision(id,decision){
-  const remark=prompt("CM remark (optional):","")||"";
-  try{
-    await req("/api/cm/corrections/decision",{method:"POST",body:JSON.stringify({request_id:id,decision,remark})});
-    loadCMCorrections();
-  }catch(e){alert(e.message)}
-}
-
-async function loadAdmin(){
-  try{
-    const d=await req("/api/admin/stats");
-    const s=d.stats;
-    adminStats.innerHTML=[
-      ["Workers",s.workers],["Active",s.active_workers],["Company Master",s.company_master],["Attendance",s.attendance_rows],
-      ["Pending Approvals",s.pending_approvals],["Pending Corrections",s.pending_corrections]
-    ].map(x=>`<div class="stat"><b>${x[1]}</b><span>${x[0]}</span></div>`).join("");
-    loadAdminWorkers();
-  }catch(e){alert(e.message)}
-}
-
-async function loadAdminWorkers(){
-  try{
-    const d=await req("/api/admin/workers?status=all");
-    adminWorkerBody.innerHTML=d.workers.map(w=>`<tr>
-      <td>${w.worker_id}</td><td>${w.worker_name}</td><td>${w.designation||""}</td>
-      <td>${w.supervisor_id||""}</td><td>${w.location||""}</td><td>${w.status||""}</td><td>${w.ot_eligible||""}</td>
-    </tr>`).join("");
-  }catch(e){adminWorkerBody.innerHTML=`<tr><td colspan="7">${e.message}</td></tr>`}
-}
-
-(async function(){
-  await loadUsers();
-  token=sessionStorage.getItem("pg_token")||"";
-  try{currentUser=JSON.parse(sessionStorage.getItem("pg_user")||"null")}catch(e){}
-  if(token&&currentUser) openRole();
-})();
+(async()=>{await loadUsers();if(token&&currentUser)showApp()})()
 </script>
 </body>
 </html>
