@@ -812,7 +812,7 @@
         <div class="field">
           <label>User</label>
           <select id="loginSupervisor">
-            <option value="">Loading supervisors...</option>
+            <option value="">Loading PostgreSQL users...</option>
           </select>
         </div>
 
@@ -1472,12 +1472,10 @@
    A saved URL in this browser overrides the default below.
 ========================================================= */
 
-// Current deployment shown in your Apps Script screenshot.
-// If it ever changes, use Account > API Settings to paste the new /exec URL.
-const DEFAULT_API_URL =
-  "https://script.google.com/macros/s/AKfycbzsG-fTz0j7dT0qtIScDF1cupZkWciDT6FLO2GeC8NmmfYfnPTQE8awVpceBCH8ip0Z/exec";
+// PostgreSQL test API. Use Account > API Settings only if the Cloudflare tunnel URL changes.
+const DEFAULT_API_URL = "https://taxi-shots-amend-johnny.trycloudflare.com";
 
-let API_URL = localStorage.getItem("attendance_api_url") || DEFAULT_API_URL;
+let API_URL = localStorage.getItem("attendance_pg_api_url") || DEFAULT_API_URL;
 let PG_V39_TOKEN = sessionStorage.getItem("attendance_pg_token") || "";
 
 const STATUS_INFO = {
@@ -3734,7 +3732,7 @@ function printCurrentStaff(){
     
 <div style="position:fixed;right:8px;bottom:8px;z-index:99999;
 background:#0b57d0;color:#fff;padding:5px 9px;border-radius:999px;
-font:700 9px Arial;box-shadow:0 3px 10px rgba(0,0,0,.15)">v39 • PostgreSQL TEST</div>
+font:700 9px Arial;box-shadow:0 3px 10px rgba(0,0,0,.15)">v39 • PostgreSQL TEST FIXED</div>
 </body>
     </html>
   `);
